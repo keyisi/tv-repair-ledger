@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bigegg.tvrepairledger.domain.DailyRepairSummary
 import com.bigegg.tvrepairledger.ui.theme.DangerRed
@@ -87,12 +88,16 @@ fun DailyBarChart(
             }
         }
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+        Row(modifier = Modifier.fillMaxWidth()) {
             summaries.forEach { summary ->
                 Text(
                     text = LocalDate.ofEpochDay(summary.dateEpochDay).format(dateFormatter),
+                    modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.labelSmall,
-                    color = Ink500
+                    color = Ink500,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
         }

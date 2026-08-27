@@ -15,13 +15,19 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.bigegg.tvrepairledger.domain.CategoryRepairSummary
 import com.bigegg.tvrepairledger.domain.DailyRepairSummary
 import com.bigegg.tvrepairledger.domain.MonthlyRepairSummary
@@ -41,21 +47,34 @@ import com.bigegg.tvrepairledger.ui.theme.DangerRed
 import com.bigegg.tvrepairledger.ui.theme.Ink500
 import com.bigegg.tvrepairledger.ui.theme.ProfitGreen
 import com.bigegg.tvrepairledger.ui.theme.RepairBlue
+import java.time.Clock
+import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.delay
+
+internal fun currentDailyStatsEpochDay(clock: Clock): Long = LocalDate.now(clock).toEpochDay()
+
+internal fun nextDailyStatsDateRefresh(clock: Clock): Instant {
+    return LocalDate.now(clock).plusDays(1).atStartOfDay(clock.zone).toInstant()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(
     records: List<RepairRecord>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    clock: Clock = Clock.systemDefaultZone()
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    var todayEpochDay by remember(clock) { mutableLongStateOf(currentDailyStatsEpochDay(clock)) }
+    val lifecycleOwner = LocalLifecycleOwner.current
     val tabs = listOf("按日", "按月", "维修项目", "故障类型")
     val daily = summarizeByDay(records)
     val recentDaily = summarizeRecentDays(
         records = records,
-        endDateEpochDay = LocalDate.now().toEpochDay()
+        endDateEpochDay = todayEpochDay
     )
     val monthly = summarizeByMonth(records)
     val itemSummaries = summarizeByRepairItem(records)
@@ -63,6 +82,28 @@ fun StatsScreen(
     val revenue = records.sumOf { it.chargedAmountCents }
     val cost = records.sumOf { it.partsCostCents ?: 0L }
     val profit = revenue - cost
+
+    fun refreshToday() {
+        todayEpochDay = currentDailyStatsEpochDay(clock)
+    }
+
+    DisposableEffect(lifecycleOwner, clock) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) refreshToday()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(clock) {
+        while (true) {
+            val delayMillis = Duration.between(clock.instant(), nextDailyStatsDateRefresh(clock))
+                .toMillis()
+                .coerceAtLeast(1L)
+            delay(delayMillis)
+            refreshToday()
+        }
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         PrimaryTabRow(selectedTabIndex = selectedTab) {
@@ -176,7 +217,7 @@ private fun DayStatCard(summary: DailyRepairSummary) {
         StatProgressRow(
             title = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
             subtitle = "${summary.count} 单 · 收入 ¥${formatCents(summary.revenueCents)} · 零件费 ¥${formatCents(summary.costCents)}",
-            value = "¥${formatCents(summary.profitCents)}",
+            value = "利润 ¥${formatCents(summary.profitCents)}",
             progress = 1f,
             tint = profitColor
         )
