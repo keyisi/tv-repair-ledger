@@ -87,6 +87,25 @@ class RepairStatsTest {
     }
 
     @Test
+    fun summarizeRecentDays_supportsThirtyContinuousDaysWithBoundaryRecords() {
+        val summaries = summarizeRecentDays(
+            records = listOf(
+                record(1, 171, "lamp", "black-screen", 50000, 5000),
+                record(2, 200, "EMMC", "boot-logo", 30000, 2000),
+                record(3, 170, "old", "old", 99999, null)
+            ),
+            endDateEpochDay = 200,
+            dayCount = 30
+        )
+
+        assertEquals(30, summaries.size)
+        assertEquals((171L..200L).toList(), summaries.map { it.dateEpochDay })
+        assertEquals(45000L, summaries.first().profitCents)
+        assertEquals(0, summaries[1].count)
+        assertEquals(28000L, summaries.last().profitCents)
+    }
+
+    @Test
     fun summarizeByRepairItem_groupsRevenueCostProfitAndCount() {
         val summaries = summarizeByRepairItem(
             listOf(

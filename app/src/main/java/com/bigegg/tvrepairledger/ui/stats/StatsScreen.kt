@@ -12,6 +12,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,9 +23,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -68,13 +73,15 @@ fun StatsScreen(
     clock: Clock = Clock.systemDefaultZone()
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    var chartRange by remember { mutableStateOf(DailyChartRange.Week) }
     var todayEpochDay by remember(clock) { mutableLongStateOf(currentDailyStatsEpochDay(clock)) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val tabs = listOf("按日", "按月", "维修项目", "故障类型")
     val daily = summarizeByDay(records)
     val recentDaily = summarizeRecentDays(
         records = records,
-        endDateEpochDay = todayEpochDay
+        endDateEpochDay = todayEpochDay,
+        dayCount = chartRange.dayCount
     )
     val monthly = summarizeByMonth(records)
     val itemSummaries = summarizeByRepairItem(records)
@@ -143,8 +150,35 @@ fun StatsScreen(
                 0 -> {
                     item {
                         LedgerCard(modifier = Modifier.fillMaxWidth()) {
-                            SectionHeader("最近 7 天", action = "收入 / 利润")
-                            DailyBarChart(recentDaily, modifier = Modifier.fillMaxWidth())
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "最近 ${chartRange.dayCount} 天",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                SingleChoiceSegmentedButtonRow {
+                                    DailyChartRange.entries.forEachIndexed { index, range ->
+                                        SegmentedButton(
+                                            selected = chartRange == range,
+                                            onClick = { chartRange = range },
+                                            shape = SegmentedButtonDefaults.itemShape(
+                                                index = index,
+                                                count = DailyChartRange.entries.size
+                                            ),
+                                            label = { Text(range.label) }
+                                        )
+                                    }
+                                }
+                            }
+                            DailyBarChart(
+                                summaries = recentDaily,
+                                modifier = Modifier.fillMaxWidth(),
+                                minimumDayWidth = if (chartRange == DailyChartRange.Month) 42.dp else 0.dp
+                            )
                         }
                     }
                     item { SectionHeader("每日明细") }
