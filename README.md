@@ -34,4 +34,4 @@ $env:ANDROID_SDK_ROOT='D:\AndroidSDK'
 .\gradlew.bat :app:assembleDebug
 ```
 
-The installable debug APK is also copied to a versioned filename such as `app/build/outputs/apk/versioned/电视维修记账_v1.13_debug.apk`.
+The installable debug APK is also copied to a versioned filename such as `app/build/outputs/apk/versioned/电视维修记账_v1.14_debug.apk`.
