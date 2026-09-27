@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>维修记账高保真原型</title>
+  <style>
+    :root {
+      --ink-900: #101828;
+      --ink-700: #344054;
+      --ink-500: #667085;
+      --canvas: #f3f6f8;
+      --card: #ffffff;
+      --line: #e4e7ec;
+      --blue: #145c74;
+      --blue-dark: #0d3f50;
+      --blue-soft: #d9eef4;
+      --green: #0f7a5a;
+      --green-soft: #ddf4ea;
+      --amber: #b36b00;
+      --shadow: 0 18px 45px rgba(16, 24, 40, .13);
+      --radius: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink-900);
+      background:
+        radial-gradient(circle at 15% 5%, rgba(20, 92, 116, .16), transparent 28rem),
+        linear-gradient(180deg, #eef4f7, #f8fafb);
+    }
+
+    .board {
+      width: min(1680px, 100%);
+      margin: 0 auto;
+      padding: 36px 28px 52px;
+    }
+
+    .headline {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      letter-spacing: 0;
+    }
+
+    .headline p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--ink-500);
+      line-height: 1.7;
+    }
+
+    .tokens {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .token {
+      padding: 8px 12px;
+      border: 1px solid rgba(20, 92, 116, .18);
+      background: rgba(255,255,255,.7);
+      border-radius: 999px;
+      color: var(--blue-dark);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .screens {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(280px, 1fr));
+      gap: 22px;
+      align-items: start;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .screen-wrap {
+      min-width: 280px;
+    }
+
+    .screen-label {
+      font-weight: 750;
+      margin: 0 0 10px;
+      color: var(--ink-700);
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 340px;
+      height: 724px;
+      border-radius: 30px;
+      padding: 12px;
+      background: #18242b;
+      box-shadow: var(--shadow);
+      margin: 0 auto;
+    }
+
+    .app {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 22px;
+      background: var(--canvas);
+      border: 1px solid rgba(255,255,255,.16);
+    }
+
+    .topbar {
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      color: #fff;
+      background: var(--blue-dark);
+    }
+
+    .topbar strong { font-size: 18px; }
+    .topbar span { opacity: .86; font-size: 13px; }
+
+    .content {
+      height: calc(100% - 62px - 72px);
+      overflow: hidden;
+      padding: 14px 14px 18px;
+    }
+
+    .content.no-nav {
+      height: calc(100% - 62px);
+      overflow: hidden;
+    }
+
+    .nav {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 72px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 8px 10px 10px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: var(--ink-500);
+      font-size: 12px;
+      border-radius: 8px;
+    }
+
+    .nav-item.active {
+      color: var(--blue);
+      background: var(--blue-soft);
+      font-weight: 750;
+    }
+
+    .fab {
+      position: absolute;
+      right: 18px;
+      bottom: 84px;
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 10px 22px rgba(20, 92, 116, .28);
+      font-size: 28px;
+      font-weight: 500;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(16, 24, 40, .04);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(16, 24, 40, .08);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 10px;
+    }
+
+    .eyebrow {
+      color: var(--ink-500);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hero h2, .section-title, .card h3 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    .muted {
+      margin: 0;
+      color: var(--ink-500);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .button {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 8px;
+      border: 0;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 750;
+      font-size: 14px;
+    }
+
+    .button.secondary {
+      background: #fff;
+      color: var(--blue);
+      border: 1px solid var(--line);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      min-height: 108px;
+      display: grid;
+      align-content: space-between;
+    }
+
+    .metric-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--ink-500);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .icon {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(20, 92, 116, .12);
+      color: var(--blue);
+    }
+
+    .metric .value {
+      font-size: 22px;
+      font-weight: 850;
+      margin: 8px 0 4px;
+      white-space: nowrap;
+    }
+
+    .section-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 14px 0 9px;
+    }
+
+    .section-row small {
+      color: var(--blue);
+      font-weight: 750;
+    }
+
+    .repair-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .repair-title strong {
+      display: block;
+      max-width: 190px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 15px;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin: 9px 0;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      max-width: 100%;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #eef3f5;
+      color: var(--ink-700);
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .amount-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-top: 7px;
+      color: var(--ink-500);
+    }
+
+    .amount-row b {
+      color: var(--ink-900);
+      font-size: 14px;
+    }
+
+    .amount-row b.green { color: var(--green); }
+    .amount-row b.amber { color: var(--amber); }
+
+    .search {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 13px;
+      border: 1px solid #cfd8dd;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink-500);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tab {
+      height: 46px;
+      display: grid;
+      place-items: center;
+      color: var(--ink-500);
+      font-weight: 700;
+      font-size: 13px;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+      color: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .field {
+      margin-top: 10px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink-700);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .input {
+      height: 42px;
+      padding: 0 12px;
+      border: 1px solid #cfd8dd;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink-900);
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .textarea {
+      height: 58px;
+      align-items: start;
+      padding-top: 10px;
+    }
+
+    .progress {
+      height: 7px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--line);
+      margin-top: 8px;
+    }
+
+    .bar {
+      height: 100%;
+      width: var(--w);
+      background: var(--blue);
+      border-radius: 999px;
+    }
+
+    .bar.green { background: var(--green); }
+
+    .privacy {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .privacy .big-icon {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    @media (max-width: 920px) {
+      .headline { display: block; }
+      .tokens { justify-content: flex-start; margin-top: 16px; }
+      .screens { grid-template-columns: repeat(5, 300px); }
+      .board { padding: 24px 16px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <section class="headline">
+      <div>
+        <h1>自营电视维修记账 - 高保真原型</h1>
+        <p>将 Android Compose 界面转换成 HTML 展板，方便快速查看首页、台账、新增表单、统计和导出备份的整体视觉效果。</p>
+      </div>
+      <div class="tokens">
+        <span class="token">本地离线</span>
+        <span class="token">维修台账</span>
+        <span class="token">收入/成本/利润</span>
+      </div>
+    </section>
+
+    <section class="screens">
+      <article class="screen-wrap">
+        <p class="screen-label">01 首页经营概览</p>
+        <div class="phone">
+          <div class="app">
+            <div class="topbar"><strong>维修记账</strong><span>今天</span></div>
+            <div class="content">
+              <div class="card hero">
+                <div class="eyebrow">今日工作台</div>
+                <h2>把上门维修、收费和利润记清楚</h2>
+                <p class="muted">本月已完成 3 单，最近 4 条维修记录可查询。</p>
+                <div class="button">＋ 新增维修记录</div>
+              </div>
+              <div class="section-row"><strong class="section-title">本月经营概览</strong></div>
+              <div class="metrics">
+                <div class="card metric">
+                  <div class="metric-head"><span>收入</span><span class="icon">¥</span></div>
+                  <div><div class="value">¥820.00</div><p class="muted">全部收费</p></div>
+                </div>
+                <div class="card metric">
+                  <div class="metric-head"><span>利润</span><span class="icon">↗</span></div>
+                  <div><div class="value" style="color:var(--green)">¥660.00</div><p class="muted">扣除配件</p></div>
+                </div>
+                <div class="card metric">
+                  <div class="metric-head"><span>成本</span><span class="icon" style="color:var(--amber)">↘</span></div>
+                  <div><div class="value">¥160.00</div><p class="muted">配件支出</p></div>
+                </div>
+                <div class="card metric">
+                  <div class="metric-head"><span>单量</span><span class="icon">修</span></div>
+                  <div><div class="value">3</div><p class="muted">本月维修</p></div>
+                </div>
+              </div>
+              <div class="section-row"><strong class="section-title">最近维修</strong><small>按时间排序</small></div>
+              <div class="card">
+                <div class="repair-title"><strong>浦东新区锦绣路88号 1202</strong><span class="chip">07-07</span></div>
+                <p class="muted">开机后黑屏，有声音</p>
+                <div class="chip-row"><span class="chip">更换背光灯条</span><span class="chip">保修 90天</span></div>
+                <div class="amount-row"><span>收费</span><b>¥380.00</b></div>
+                <div class="amount-row"><span>利润</span><b class="green">¥260.00</b></div>
+              </div>
+            </div>
+            <div class="fab">＋</div>
+            <nav class="nav">
+              <div class="nav-item active">⌂<span>首页</span></div>
+              <div class="nav-item">☷<span>台账</span></div>
+              <div class="nav-item">▥<span>统计</span></div>
+              <div class="nav-item">⇩<span>导出</span></div>
+            </nav>
+          </div>
+        </div>
+      </article>
+
+      <article class="screen-wrap">
+        <p class="screen-label">02 维修台账</p>
+        <div class="phone">
+          <div class="app">
+            <div class="topbar"><strong>维修台账</strong><span>4 条</span></div>
+            <div class="content">
+              <div class="search">⌕ 搜索地址、电话、故障、配件、备注</div>
+              <div class="section-row"><strong class="section-title">全部维修记录</strong><small>4 条</small></div>
+              <div class="card">
+                <div class="repair-title"><strong>浦东新区锦绣路88号 1202</strong><span class="chip">利润 ¥260.00</span></div>
+                <p class="muted">13800138000 · 2026-07-07</p>
+                <p>开机后黑屏，有声音</p>
+                <div class="chip-row"><span class="chip">更换背光灯条</span><span class="chip">90天</span></div>
+                <div class="amount-row"><span>收费</span><b>¥380.00</b></div>
+                <div class="amount-row"><span>净利润</span><b class="green">¥260.00</b></div>
+              </div>
+              <div class="card">
+                <div class="repair-title"><strong>闵行区都会路16弄</strong><span class="chip">利润 ¥220.00</span></div>
+                <p class="muted">13900139000 · 2026-07-04</p>
+                <p>无声音，偶发重启</p>
+                <div class="chip-row"><span class="chip">音频板维修</span></div>
+                <div class="amount-row"><span>收费</span><b>¥260.00</b></div>
+                <div class="amount-row"><span>净利润</span><b class="green">¥220.00</b></div>
+              </div>
+              <div class="card">
+                <div class="repair-title"><strong>宝山区长江南路 688 号</strong><span class="chip">利润 ¥180.00</span></div>
+                <p class="muted">13700137000 · 2026-06-29</p>
+                <div class="chip-row"><span class="chip">更换红外接收头</span><span class="chip">成本未填</span></div>
+              </div>
+            </div>
+            <div class="fab">＋</div>
+            <nav class="nav">
+              <div class="nav-item">⌂<span>首页</span></div>
+              <div class="nav-item active">☷<span>台账</span></div>
+              <div class="nav-item">▥<span>统计</span></div>
+              <div class="nav-item">⇩<span>导出</span></div>
+            </nav>
+          </div>
+        </div>
+      </article>
+
+      <article class="screen-wrap">
+        <p class="screen-label">03 新增维修记录</p>
+        <div class="phone">
+          <div class="app">
+            <div class="topbar"><strong>新增维修记录</strong><span>取消</span></div>
+            <div class="content no-nav">
+              <div class="card">
+                <div class="section-row" style="margin-top:0"><strong class="section-title">客户信息</strong></div>
+                <div class="field"><label>维修日期</label><div class="input">2026-07-07</div></div>
+                <div class="field"><label>客户地址</label><div class="input">浦东新区锦绣路88号 1202</div></div>
+                <div class="field"><label>联系电话</label><div class="input">13800138000</div></div>
+              </div>
+              <div class="card">
+                <div class="section-row" style="margin-top:0"><strong class="section-title">故障与维修</strong></div>
+                <div class="field"><label>故障现象</label><div class="input">开机黑屏，有声音</div></div>
+                <div class="field"><label>维修项目/配件</label><div class="input">更换背光灯条</div></div>
+              </div>
+              <div class="card">
+                <div class="repair-title"><strong>金额与利润</strong><span style="color:var(--green)">¥</span></div>
+                <p class="muted">配件成本可留空，利润自动计算</p>
+                <div class="field"><label>收费金额</label><div class="input">380</div></div>
+                <div class="field"><label>配件成本</label><div class="input">120</div></div>
+                <div class="amount-row"><span>预计利润</span><b class="green">¥260.00</b></div>
+              </div>
+              <div class="button">保存维修记录</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="screen-wrap">
+        <p class="screen-label">04 经营统计</p>
+        <div class="phone">
+          <div class="app">
+            <div class="topbar"><strong>经营统计</strong><span>利润排行</span></div>
+            <div class="tabs">
+              <div class="tab active">按月</div>
+              <div class="tab">维修项目</div>
+              <div class="tab">故障类型</div>
+            </div>
+            <div class="content" style="height:calc(100% - 62px - 46px - 72px)">
+              <div class="card">
+                <div class="section-row" style="margin-top:0"><strong class="section-title">全部经营数据</strong><small>4 单</small></div>
+                <div class="metrics" style="margin-bottom:0">
+                  <div><p class="muted">总收入</p><h2>¥1340.00</h2></div>
+                  <div><p class="muted">总利润</p><h2 style="color:var(--green)">¥1100.00</h2></div>
+                </div>
+                <div class="amount-row"><span>总成本</span><b class="amber">¥240.00</b></div>
+              </div>
+              <div class="section-row"><strong class="section-title">月度表现</strong></div>
+              <div class="card">
+                <div class="repair-title"><strong>2026-07</strong><b class="green">¥660.00</b></div>
+                <p class="muted">3 单 · 收入 ¥820.00 · 成本 ¥160.00</p>
+                <div class="progress"><div class="bar green" style="--w:100%"></div></div>
+              </div>
+              <div class="card">
+                <div class="repair-title"><strong>2026-06</strong><b class="green">¥440.00</b></div>
+                <p class="muted">1 单 · 收入 ¥520.00 · 成本 ¥80.00</p>
+                <div class="progress"><div class="bar green" style="--w:67%"></div></div>
+              </div>
+            </div>
+            <div class="fab">＋</div>
+            <nav class="nav">
+              <div class="nav-item">⌂<span>首页</span></div>
+              <div class="nav-item">☷<span>台账</span></div>
+              <div class="nav-item active">▥<span>统计</span></div>
+              <div class="nav-item">⇩<span>导出</span></div>
+            </nav>
+          </div>
+        </div>
+      </article>
+
+      <article class="screen-wrap">
+        <p class="screen-label">05 导出与备份</p>
+        <div class="phone">
+          <div class="app">
+            <div class="topbar"><strong>导出与备份</strong><span>本地</span></div>
+            <div class="content">
+              <div class="card">
+                <div class="repair-title"><strong>本地数据管理</strong><span style="color:var(--blue)">锁</span></div>
+                <p class="muted">当前共有 4 条维修记录</p>
+                <div class="chip-row"><span class="chip">无账号</span><span class="chip">不联网</span><span class="chip">本机保存</span></div>
+              </div>
+              <div class="card">
+                <h3>导出维修台账</h3>
+                <p class="muted">生成 CSV 文本，可复制后保存为表格文件，用于对账、打印或电脑端归档。</p>
+                <div class="button">▤ 生成 CSV 导出</div>
+              </div>
+              <div class="card">
+                <h3>创建本地备份</h3>
+                <p class="muted">生成结构化 JSON 备份，保留空成本、备注、保修期等字段。</p>
+                <div class="button secondary">▣ 生成本地备份 JSON</div>
+              </div>
+              <div class="card privacy">
+                <div class="big-icon">☁</div>
+                <div>
+                  <h3>隐私优先</h3>
+                  <p class="muted">应用不需要登录，不连接云端，维修记录默认只保留在本机。</p>
+                </div>
+              </div>
+              <p class="muted">Excel 导入解析器已完成；文件选择和真实 xlsx 读取会在后续版本集成。</p>
+            </div>
+            <div class="fab">＋</div>
+            <nav class="nav">
+              <div class="nav-item">⌂<span>首页</span></div>
+              <div class="nav-item">☷<span>台账</span></div>
+              <div class="nav-item">▥<span>统计</span></div>
+              <div class="nav-item active">⇩<span>导出</span></div>
+            </nav>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

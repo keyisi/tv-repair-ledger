@@ -1,0 +1,17 @@
+.gradle/
+.gradle-local/
+build/
+app/build/
+local.properties
+*.iml
+.idea/
+
+# Real business data (contains customer PII) - do not publish
+自营电视维修记录*.xlsx
+
+# AI tooling working dirs / temp output
+.agents/
+.learnings/
+.superpowers/
+tmp/
+output/
