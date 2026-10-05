@@ -14,6 +14,9 @@ class CommonOptionStore(context: Context) {
     fun loadRepairDeviceOptions(): List<String> =
         preferences.getStringSet(KEY_REPAIR_DEVICES, defaultRepairDeviceOptions.toSet()).orEmpty().sorted()
 
+    fun loadBrandOptions(): List<String> =
+        preferences.getStringSet(KEY_BRANDS, defaultBrandOptions.toSet()).orEmpty().sorted()
+
     fun loadAddressOptions(): List<String> =
         mergeAddressOptions(
             savedOptions = preferences.getStringSet(KEY_ADDRESSES, emptySet()).orEmpty().toList(),
@@ -37,6 +40,10 @@ class CommonOptionStore(context: Context) {
 
     fun saveRepairDeviceOptions(options: List<String>) {
         preferences.edit().putStringSet(KEY_REPAIR_DEVICES, normalizeOptions(options).toSet()).apply()
+    }
+
+    fun saveBrandOptions(options: List<String>) {
+        preferences.edit().putStringSet(KEY_BRANDS, normalizeOptions(options).toSet()).apply()
     }
 
     fun saveAddressOptions(options: List<String>) {
@@ -63,6 +70,7 @@ class CommonOptionStore(context: Context) {
         private const val KEY_FAULTS = "fault-options"
         private const val KEY_REPAIR_ITEMS = "repair-item-options"
         private const val KEY_REPAIR_DEVICES = "repair-device-options"
+        private const val KEY_BRANDS = "brand-options"
         private const val KEY_ADDRESSES = "address-options"
         private const val KEY_DELETED_ADDRESSES = "deleted-address-options"
         private const val KEY_RECENT_ADDRESSES = "recent-address-options"
@@ -72,6 +80,28 @@ class CommonOptionStore(context: Context) {
         val defaultFaultOptions = listOf("黑屏", "灰屏", "无声音", "开机卡 LOGO", "遥控不灵", "自动重启")
         val defaultRepairItemOptions = listOf("更换背光灯条", "主板维修", "电源板维修", "音频板维修", "EMMC 数据修复", "更换红外接收头")
         val defaultRepairDeviceOptions = listOf("OLED电视", "投影仪", "显示器", "机顶盒", "液晶电视", "电视机")
+        val defaultBrandOptions = listOf(
+            "Redmi",
+            "TCL",
+            "LG",
+            "Vidda",
+            "东芝",
+            "乐视",
+            "创维",
+            "华为",
+            "夏普",
+            "小米",
+            "康佳",
+            "松下",
+            "海尔",
+            "海信",
+            "索尼",
+            "荣耀",
+            "飞利浦",
+            "长虹",
+            "雷鸟",
+            "三星"
+        )
         val defaultAddressOptions = listOf(
             "昌建融创·观澜公馆",
             "御景湾",

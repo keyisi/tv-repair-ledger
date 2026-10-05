@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val appVersionCode = 15
-val appVersionName = "1.14"
+val appVersionCode = 16
+val appVersionName = "1.15"
 
 android {
     namespace = "com.bigegg.tvrepairledger"

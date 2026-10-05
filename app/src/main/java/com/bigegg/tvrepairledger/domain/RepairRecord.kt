@@ -15,7 +15,8 @@ data class RepairRecord @JvmOverloads constructor(
     val updatedAtMillis: Long,
     val customerName: String = "",
     val warrantyDays: Int = 90,
-    val repairDevice: String = ""
+    val repairDevice: String = "",
+    val brand: String = ""
 )
 
 val RepairRecord.profitCents: Long

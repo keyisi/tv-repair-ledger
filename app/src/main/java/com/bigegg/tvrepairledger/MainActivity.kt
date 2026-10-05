@@ -16,8 +16,7 @@ class MainActivity : ComponentActivity() {
             AppDatabase::class.java,
             "repair-ledger.db"
         )
-            .addMigrations(AppDatabase.MIGRATION_1_2)
-            .addMigrations(AppDatabase.MIGRATION_2_3)
+            .addMigrations(*AppDatabase.ALL_MIGRATIONS)
             .build()
         val repository = RoomRepairRepository(database.repairRecordDao())
         val optionStore = CommonOptionStore(applicationContext)

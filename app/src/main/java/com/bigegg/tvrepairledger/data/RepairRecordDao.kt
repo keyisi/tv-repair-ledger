@@ -25,6 +25,8 @@ interface RepairRecordDao {
         WHERE address LIKE '%' || :query || '%'
            OR phone LIKE '%' || :query || '%'
            OR repairDevice LIKE '%' || :query || '%'
+           OR brand LIKE '%' || :query || '%'
+           OR customerName LIKE '%' || :query || '%'
            OR faultSymptom LIKE '%' || :query || '%'
            OR repairItem LIKE '%' || :query || '%'
            OR notes LIKE '%' || :query || '%'

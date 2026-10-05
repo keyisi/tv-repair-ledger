@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,6 +58,7 @@ fun RepairListScreen(
                 record.address,
                 record.phone,
                 record.repairDevice,
+                record.brand,
                 record.faultSymptom,
                 record.repairItem,
                 record.notes,
@@ -113,6 +116,7 @@ private fun EmptySearchState(query: String) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RepairListItem(
     record: RepairRecord,
@@ -154,9 +158,15 @@ private fun RepairListItem(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             if (record.repairDevice.isNotBlank()) {
                 InfoChip(record.repairDevice)
+            }
+            if (record.brand.isNotBlank()) {
+                InfoChip(record.brand)
             }
             InfoChip(record.repairItem.ifBlank { "未填维修项目" })
             InfoChip(if (record.address.isBlank()) "未填地址" else record.address)

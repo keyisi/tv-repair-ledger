@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [RepairRecordEntity::class], version = 3, exportSchema = true)
+@Database(entities = [RepairRecordEntity::class], version = 4, exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun repairRecordDao(): RepairRecordDao
 
@@ -22,5 +22,13 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE repair_records ADD COLUMN repairDevice TEXT NOT NULL DEFAULT ''")
             }
         }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE repair_records ADD COLUMN brand TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
+        val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
     }
 }

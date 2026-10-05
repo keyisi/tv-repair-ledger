@@ -95,6 +95,7 @@ fun TvRepairLedgerApp(
         var addressOptions by remember { mutableStateOf(optionStore.loadAddressOptions()) }
         var recentAddressOptions by remember { mutableStateOf(optionStore.loadRecentAddressOptions()) }
         var repairDeviceOptions by remember { mutableStateOf(optionStore.loadRepairDeviceOptions()) }
+        var brandOptions by remember { mutableStateOf(optionStore.loadBrandOptions()) }
         var faultOptions by remember { mutableStateOf(optionStore.loadFaultOptions()) }
         var repairItemOptions by remember { mutableStateOf(optionStore.loadRepairItemOptions()) }
         val rankedAddressOptions = CommonOptionStore.rankAddressOptions(addressOptions, recentAddressOptions)
@@ -249,6 +250,7 @@ fun TvRepairLedgerApp(
                     recordCount = records.size,
                     addressOptions = rankedAddressOptions,
                     repairDeviceOptions = repairDeviceOptions,
+                    brandOptions = brandOptions,
                     faultOptions = faultOptions,
                     repairItemOptions = repairItemOptions,
                     onImportXlsx = {
@@ -283,6 +285,16 @@ fun TvRepairLedgerApp(
                         val updated = repairDeviceOptions.filterNot { it == option }
                         repairDeviceOptions = updated
                         optionStore.saveRepairDeviceOptions(updated)
+                    },
+                    onAddBrandOption = { option ->
+                        val updated = CommonOptionStore.normalizeOptions(brandOptions + option)
+                        brandOptions = updated
+                        optionStore.saveBrandOptions(updated)
+                    },
+                    onDeleteBrandOption = { option ->
+                        val updated = brandOptions.filterNot { it == option }
+                        brandOptions = updated
+                        optionStore.saveBrandOptions(updated)
                     },
                     onAddFaultOption = { option ->
                         val updated = CommonOptionStore.normalizeOptions(faultOptions + option)
@@ -343,6 +355,7 @@ fun TvRepairLedgerApp(
                         recentAddressOptions = optionStore.loadRecentAddressOptions()
                     },
                     repairDeviceOptions = repairDeviceOptions,
+                    brandOptions = brandOptions,
                     faultOptions = faultOptions,
                     repairItemOptions = repairItemOptions,
                     modifier = Modifier.padding(innerPadding)
@@ -428,6 +441,7 @@ private fun RepairEditorDraft.toRecord(
         updatedAtMillis = updatedAtMillis,
         customerName = customerName.trim(),
         warrantyDays = warrantyDays,
-        repairDevice = repairDevice.trim()
+        repairDevice = repairDevice.trim(),
+        brand = brand.trim()
     )
 }

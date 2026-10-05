@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -170,6 +172,7 @@ private fun EmptyState() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RecentRecordCard(
     record: RepairRecord,
@@ -205,9 +208,15 @@ private fun RecentRecordCard(
             }
             InfoChip(dateText)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             if (record.repairDevice.isNotBlank()) {
                 InfoChip(record.repairDevice)
+            }
+            if (record.brand.isNotBlank()) {
+                InfoChip(record.brand)
             }
             InfoChip(record.repairItem.ifBlank { "未填项目" })
             InfoChip(if (expired) "已过保" else "保修剩 $remainingDays 天")

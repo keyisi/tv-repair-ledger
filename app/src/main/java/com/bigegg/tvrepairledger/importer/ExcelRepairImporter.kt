@@ -9,6 +9,8 @@ data class ImportedRepairRow(
     val sourceRowNumber: Int,
     val dateEpochDay: Long,
     val customerName: String = "",
+    val brand: String = "",
+    val repairDevice: String = "",
     val address: String,
     val phone: String,
     val faultSymptom: String,
@@ -55,7 +57,9 @@ fun ImportedRepairRow.toRepairRecord(
     createdAtMillis = createdAtMillis,
     updatedAtMillis = updatedAtMillis,
     customerName = customerName,
-    warrantyDays = warrantyDays
+    warrantyDays = warrantyDays,
+    repairDevice = repairDevice,
+    brand = brand
 )
 
 fun parseWorkbookRows(rows: List<List<String?>>): ImportReview {
@@ -113,6 +117,8 @@ fun parseWorkbookRows(rows: List<List<String?>>): ImportReview {
             sourceRowNumber = sourceRowNumber,
             dateEpochDay = parsedDate.toEpochDay(),
             customerName = row.cell(mapping.customerName),
+            brand = row.cell(mapping.brand),
+            repairDevice = row.cell(mapping.repairDevice),
             address = row.cell(mapping.address),
             phone = normalizePhone(row.cell(mapping.phone)),
             faultSymptom = row.cell(mapping.faultSymptom),
@@ -134,6 +140,8 @@ fun parseWorkbookRows(rows: List<List<String?>>): ImportReview {
 private data class WorkbookMapping(
     val date: Int,
     val customerName: Int,
+    val brand: Int,
+    val repairDevice: Int,
     val address: Int,
     val phone: Int,
     val faultSymptom: Int,
@@ -144,38 +152,57 @@ private data class WorkbookMapping(
     val warrantyDays: Int
 ) {
     companion object {
+        private const val MISSING = -1
+
+        /**
+         * 按表头名称识别每一列，中英文表头都支持，列顺序可以任意调整。
+         * 本应用导出的表头（日期/客户姓名/品牌/联系电话/客户地址/维修设备/故障现象/维修项目/收费/零件费/利润/保修天数/备注）
+         * 与旧版导出表头（日期/地址/配件/故障现象/收费/零件费/电话/备注/…）都能正确识别。
+         */
         fun fromHeader(header: List<String?>): WorkbookMapping {
-            val normalized = header.map { it?.trim().orEmpty() }
-            val exported = normalized.any { it.equals("customerName", ignoreCase = true) || it == "客户姓名" }
-            return if (exported) {
-                WorkbookMapping(
-                    date = 0,
-                    customerName = 1,
-                    address = 2,
-                    phone = 3,
-                    faultSymptom = 4,
-                    repairItem = 5,
-                    chargedAmount = 6,
-                    partsCost = 7,
-                    notes = 8,
-                    warrantyDays = 9
-                )
-            } else {
-                WorkbookMapping(
-                    date = 0,
-                    customerName = -1,
-                    address = 1,
-                    repairItem = 2,
-                    faultSymptom = 3,
-                    chargedAmount = 4,
-                    partsCost = 5,
-                    phone = 6,
-                    notes = 7,
-                    warrantyDays = -1
-                )
-            }
+            val byName = WorkbookMapping(
+                date = header.indexOfName("日期", "date"),
+                customerName = header.indexOfName("客户姓名", "客户", "姓名", "customerName"),
+                brand = header.indexOfName("品牌", "brand"),
+                repairDevice = header.indexOfName("维修设备", "机型", "设备", "repairDevice"),
+                address = header.indexOfName("客户地址", "地址", "address"),
+                phone = header.indexOfName("联系电话", "电话", "phone"),
+                faultSymptom = header.indexOfName("故障现象", "故障", "faultSymptom", "fault"),
+                repairItem = header.indexOfName("维修项目", "配件", "项目", "repairItem", "part"),
+                chargedAmount = header.indexOfName("收费", "收费金额", "chargedAmount", "charged"),
+                partsCost = header.indexOfName("零件费", "配件成本", "partsCost", "cost"),
+                notes = header.indexOfName("备注", "notes"),
+                warrantyDays = header.indexOfName("保修天数", "warrantyDays")
+            )
+
+            // 日期与收费都认不出来时，退回旧版的固定列顺序，避免完全陌生的表头导致整表被跳过。
+            return if (byName.date != MISSING && byName.chargedAmount != MISSING) byName else legacyPositional()
         }
+
+        private fun legacyPositional() = WorkbookMapping(
+            date = 0,
+            customerName = MISSING,
+            brand = MISSING,
+            repairDevice = MISSING,
+            address = 1,
+            repairItem = 2,
+            faultSymptom = 3,
+            chargedAmount = 4,
+            partsCost = 5,
+            phone = 6,
+            notes = 7,
+            warrantyDays = MISSING
+        )
     }
+}
+
+private fun List<String?>.indexOfName(vararg names: String): Int {
+    forEachIndexed { index, cell ->
+        val normalized = cell?.trim().orEmpty()
+        if (normalized.isEmpty()) return@forEachIndexed
+        if (names.any { it.equals(normalized, ignoreCase = true) }) return index
+    }
+    return -1
 }
 
 private fun List<String?>.cell(index: Int): String = getOrNull(index)?.trim().orEmpty()

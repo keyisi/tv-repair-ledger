@@ -27,6 +27,7 @@ fun encodeBackup(records: List<RepairRecord>): String {
                     .put("customerName", record.customerName)
                     .put("warrantyDays", record.warrantyDays)
                     .put("repairDevice", record.repairDevice)
+                    .put("brand", record.brand)
             }
         )
     )
@@ -55,7 +56,8 @@ fun decodeBackup(json: String): List<RepairRecord> {
             updatedAtMillis = item.getLong("updatedAtMillis"),
             customerName = item.optString("customerName", ""),
             warrantyDays = if (item.has("warrantyDays")) item.getInt("warrantyDays") else 90,
-            repairDevice = item.optString("repairDevice", "")
+            repairDevice = item.optString("repairDevice", ""),
+            brand = item.optString("brand", "")
         )
     }
 }

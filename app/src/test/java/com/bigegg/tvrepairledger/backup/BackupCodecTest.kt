@@ -22,7 +22,8 @@ class BackupCodecTest {
             updatedAtMillis = 2000L,
             customerName = "张三",
             warrantyDays = 120,
-            repairDevice = "液晶电视"
+            repairDevice = "液晶电视",
+            brand = "小米"
         )
 
         val decoded = decodeBackup(encodeBackup(listOf(record)))
@@ -32,6 +33,7 @@ class BackupCodecTest {
         assertEquals("张三", decoded.single().customerName)
         assertEquals(120, decoded.single().warrantyDays)
         assertEquals("液晶电视", decoded.single().repairDevice)
+        assertEquals("小米", decoded.single().brand)
     }
 
     @Test
@@ -52,5 +54,21 @@ class BackupCodecTest {
         )
 
         assertEquals(record, decodeBackup(encodeBackup(listOf(record))).single())
+    }
+
+    @Test
+    fun decodeBackup_readsBackupsWrittenBeforeBrandExisted() {
+        val legacyJson = """
+            {"version":1,"records":[{"id":1,"dateEpochDay":19810,"address":"Address","phone":"180",
+            "faultSymptom":"black screen","repairItem":"lamp","chargedAmountCents":50000,
+            "partsCostCents":5000,"notes":"note","warrantyPeriod":"90天","createdAtMillis":1,
+            "updatedAtMillis":2,"customerName":"张三","warrantyDays":90,"repairDevice":"液晶电视"}]}
+        """.trimIndent()
+
+        val decoded = decodeBackup(legacyJson).single()
+
+        assertEquals("", decoded.brand)
+        assertEquals("液晶电视", decoded.repairDevice)
+        assertEquals(50000L, decoded.chargedAmountCents)
     }
 }

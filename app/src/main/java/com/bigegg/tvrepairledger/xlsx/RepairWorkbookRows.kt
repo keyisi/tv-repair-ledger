@@ -5,19 +5,24 @@ import com.bigegg.tvrepairledger.domain.formatCents
 import com.bigegg.tvrepairledger.domain.profitCents
 import java.time.LocalDate
 
+/**
+ * 导出表头是自描述的：导入时按表头名称识别列，不再依赖固定列位置。
+ * 这里列出记录的全部业务字段，保证导出后再导入不丢数据。
+ */
 val repairWorkbookHeader = listOf(
     "日期",
-    "地址",
-    "配件",
+    "客户姓名",
+    "品牌",
+    "联系电话",
+    "客户地址",
+    "维修设备",
     "故障现象",
+    "维修项目",
     "收费",
     "零件费",
-    "电话",
-    "备注",
-    "",
-    "合计",
-    "零件费",
-    "利润"
+    "利润",
+    "保修天数",
+    "备注"
 )
 
 fun repairRecordsToWorkbookRows(records: List<RepairRecord>): List<List<String>> {
@@ -26,17 +31,18 @@ fun repairRecordsToWorkbookRows(records: List<RepairRecord>): List<List<String>>
         .map { record ->
             listOf(
                 LocalDate.ofEpochDay(record.dateEpochDay).toString(),
-                record.address,
-                record.repairItem,
-                record.faultSymptom,
-                formatCents(record.chargedAmountCents),
-                record.partsCostCents?.let(::formatCents).orEmpty(),
+                record.customerName,
+                record.brand,
                 record.phone,
-                record.notes,
-                "",
+                record.address,
+                record.repairDevice,
+                record.faultSymptom,
+                record.repairItem,
                 formatCents(record.chargedAmountCents),
                 record.partsCostCents?.let(::formatCents).orEmpty(),
-                formatCents(record.profitCents)
+                formatCents(record.profitCents),
+                record.warrantyDays.toString(),
+                record.notes
             )
         }
 }

@@ -20,7 +20,8 @@ data class RepairRecordEntity(
     val updatedAtMillis: Long,
     val customerName: String = "",
     val warrantyDays: Int = 90,
-    val repairDevice: String = ""
+    val repairDevice: String = "",
+    val brand: String = ""
 )
 
 fun RepairRecordEntity.toDomain(): RepairRecord = RepairRecord(
@@ -38,7 +39,8 @@ fun RepairRecordEntity.toDomain(): RepairRecord = RepairRecord(
     updatedAtMillis = updatedAtMillis,
     customerName = customerName,
     warrantyDays = warrantyDays,
-    repairDevice = repairDevice
+    repairDevice = repairDevice,
+    brand = brand
 )
 
 fun RepairRecord.toEntity(): RepairRecordEntity = RepairRecordEntity(
@@ -56,5 +58,6 @@ fun RepairRecord.toEntity(): RepairRecordEntity = RepairRecordEntity(
     updatedAtMillis = updatedAtMillis,
     customerName = customerName,
     warrantyDays = warrantyDays,
-    repairDevice = repairDevice
+    repairDevice = repairDevice,
+    brand = brand
 )

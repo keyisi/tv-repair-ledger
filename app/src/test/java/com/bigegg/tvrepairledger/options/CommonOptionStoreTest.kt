@@ -21,6 +21,17 @@ class CommonOptionStoreTest {
     }
 
     @Test
+    fun defaultBrandOptions_containsCommonTvBrands() {
+        val brands = CommonOptionStore.defaultBrandOptions
+
+        assertEquals(20, brands.size)
+        assertEquals(true, brands.contains("小米"))
+        assertEquals(true, brands.contains("海信"))
+        assertEquals(true, brands.contains("TCL"))
+        assertEquals(true, brands.contains("索尼"))
+    }
+
+    @Test
     fun normalizeOptions_trimsDropsBlanksAndDeduplicates() {
         val result = CommonOptionStore.normalizeOptions(
             listOf(" 黑屏 ", "", "灰屏", "黑屏", "  ")

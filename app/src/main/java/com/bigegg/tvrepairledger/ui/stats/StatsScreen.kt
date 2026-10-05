@@ -43,6 +43,8 @@ import com.bigegg.tvrepairledger.domain.summarizeByFault
 import com.bigegg.tvrepairledger.domain.summarizeByMonth
 import com.bigegg.tvrepairledger.domain.summarizeByRepairItem
 import com.bigegg.tvrepairledger.domain.summarizeRecentDays
+import com.bigegg.tvrepairledger.domain.summarizeRecentMonths
+import com.bigegg.tvrepairledger.domain.summariesByMonthAscending
 import com.bigegg.tvrepairledger.ui.components.AmountRow
 import com.bigegg.tvrepairledger.ui.components.LedgerCard
 import com.bigegg.tvrepairledger.ui.components.SectionHeader
@@ -56,6 +58,7 @@ import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.delay
 
@@ -74,6 +77,7 @@ fun StatsScreen(
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var chartRange by remember { mutableStateOf(DailyChartRange.Week) }
+    var monthlyChartRange by remember { mutableStateOf(MonthlyChartRange.HalfYear) }
     var todayEpochDay by remember(clock) { mutableLongStateOf(currentDailyStatsEpochDay(clock)) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val tabs = listOf("按日", "按月", "维修项目", "故障类型")
@@ -84,6 +88,13 @@ fun StatsScreen(
         dayCount = chartRange.dayCount
     )
     val monthly = summarizeByMonth(records)
+    val monthlyChartSummaries = monthlyChartRange.monthCount?.let { monthCount ->
+        summarizeRecentMonths(
+            records = records,
+            endYearMonth = YearMonth.from(LocalDate.ofEpochDay(todayEpochDay)),
+            monthCount = monthCount
+        )
+    } ?: summariesByMonthAscending(records)
     val itemSummaries = summarizeByRepairItem(records)
     val faultSummaries = summarizeByFault(records)
     val revenue = records.sumOf { it.chargedAmountCents }
@@ -190,6 +201,42 @@ fun StatsScreen(
                 }
 
                 1 -> {
+                    item {
+                        LedgerCard(modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = monthlyChartRange.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                SingleChoiceSegmentedButtonRow {
+                                    MonthlyChartRange.entries.forEachIndexed { index, range ->
+                                        SegmentedButton(
+                                            selected = monthlyChartRange == range,
+                                            onClick = { monthlyChartRange = range },
+                                            shape = SegmentedButtonDefaults.itemShape(
+                                                index = index,
+                                                count = MonthlyChartRange.entries.size
+                                            ),
+                                            label = { Text(range.label) }
+                                        )
+                                    }
+                                }
+                            }
+                            if (monthlyChartSummaries.isEmpty()) {
+                                Text("暂无月度数据", color = Ink500)
+                            } else {
+                                MonthlyBarChart(
+                                    summaries = monthlyChartSummaries,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
                     item { SectionHeader("月度表现") }
                     if (monthly.isEmpty()) {
                         item { EmptyStats("暂无月度统计") }

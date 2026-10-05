@@ -27,7 +27,7 @@ class CsvExporterTest {
             )
         )
 
-        assertTrue(csv.contains("date,customerName,address,phone,faultSymptom,repairItem,chargedAmount,partsCost,profit,notes,warrantyDays"))
+        assertTrue(csv.contains("date,customerName,brand,address,phone,faultSymptom,repairItem,chargedAmount,partsCost,profit,notes,warrantyDays"))
         assertTrue(csv.contains("450.00"))
     }
 
@@ -48,14 +48,15 @@ class CsvExporterTest {
                     warrantyPeriod = "",
                     createdAtMillis = 1L,
                     updatedAtMillis = 1L,
-                    customerName = "Li"
+                    customerName = "Li",
+                    brand = "小米"
                 )
             )
         )
 
         val lines = csv.lines()
-        assertEquals("date,customerName,address,phone,faultSymptom,repairItem,chargedAmount,partsCost,profit,notes,warrantyDays", lines.first())
-        assertTrue(csv.contains(",Li,"))
+        assertEquals("date,customerName,brand,address,phone,faultSymptom,repairItem,chargedAmount,partsCost,profit,notes,warrantyDays", lines.first())
+        assertTrue(csv.contains(",Li,小米,"))
         assertTrue(csv.contains("\"Building 3, Room \"\"1804\"\"\""))
         assertTrue(csv.contains("\"black\nscreen\""))
         assertTrue(csv.contains(",500.00,,500.00,"))

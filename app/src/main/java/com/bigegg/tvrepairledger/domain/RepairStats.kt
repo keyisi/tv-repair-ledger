@@ -1,6 +1,7 @@
 package com.bigegg.tvrepairledger.domain
 
 import java.time.LocalDate
+import java.time.YearMonth
 
 data class DailyRepairSummary(
     val dateEpochDay: Long,
@@ -83,8 +84,42 @@ fun summarizeByMonth(records: List<RepairRecord>): List<MonthlyRepairSummary> {
         )
 }
 
+/**
+ * 全部月度汇总，按时间从旧到新排列，供月度图表从左到右绘制。
+ */
+fun summariesByMonthAscending(records: List<RepairRecord>): List<MonthlyRepairSummary> {
+    return summarizeByMonth(records).sortedWith(
+        compareBy<MonthlyRepairSummary> { it.year }.thenBy { it.month }
+    )
+}
+
+/**
+ * 以 [endYearMonth] 为最后一个月，生成连续 [monthCount] 个月的月度汇总，缺少记录的月份补零。
+ * 与按日图表补零保持一致，便于观察月度趋势和空档。
+ */
+fun summarizeRecentMonths(
+    records: List<RepairRecord>,
+    endYearMonth: YearMonth,
+    monthCount: Int
+): List<MonthlyRepairSummary> {
+    require(monthCount > 0) { "monthCount must be positive" }
+    val summariesByMonth = summarizeByMonth(records).associateBy { YearMonth.of(it.year, it.month) }
+    val startYearMonth = endYearMonth.minusMonths((monthCount - 1).toLong())
+    return (0 until monthCount).map { offset ->
+        val yearMonth = startYearMonth.plusMonths(offset.toLong())
+        summariesByMonth[yearMonth] ?: MonthlyRepairSummary(
+            year = yearMonth.year,
+            month = yearMonth.monthValue,
+            count = 0,
+            revenueCents = 0L,
+            costCents = 0L,
+            profitCents = 0L
+        )
+    }
+}
+
 fun summarizeByRepairItem(records: List<RepairRecord>): List<CategoryRepairSummary> {
-    return summarizeByCategory(records) { it.repairItem.ifBlank { "\u672a\u586b\u5199" } }
+    return summarizeByCategory(records) { it.repairItem.ifBlank { "未填写" } }
 }
 
 fun summarizeByFault(records: List<RepairRecord>): List<CategoryRepairSummary> {

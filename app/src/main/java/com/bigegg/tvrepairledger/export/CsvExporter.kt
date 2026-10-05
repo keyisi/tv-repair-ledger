@@ -6,11 +6,12 @@ import com.bigegg.tvrepairledger.domain.profitCents
 import java.time.LocalDate
 
 fun exportCsv(records: List<RepairRecord>): String {
-    val header = "date,customerName,address,phone,faultSymptom,repairItem,chargedAmount,partsCost,profit,notes,warrantyDays"
+    val header = "date,customerName,brand,address,phone,faultSymptom,repairItem,chargedAmount,partsCost,profit,notes,warrantyDays"
     val rows = records.map { record ->
         listOf(
             LocalDate.ofEpochDay(record.dateEpochDay).toString(),
             record.customerName,
+            record.brand,
             record.address,
             record.phone,
             record.faultSymptom,

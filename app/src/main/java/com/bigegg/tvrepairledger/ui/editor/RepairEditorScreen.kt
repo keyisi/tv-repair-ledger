@@ -59,6 +59,7 @@ data class RepairEditorDraft(
     val date: LocalDate,
     val customerName: String,
     val repairDevice: String,
+    val brand: String,
     val address: String,
     val phone: String,
     val faultSymptom: String,
@@ -80,6 +81,7 @@ fun RepairEditorScreen(
     addressOptions: List<String> = emptyList(),
     onUseAddressOption: (String) -> Unit = {},
     repairDeviceOptions: List<String> = emptyList(),
+    brandOptions: List<String> = emptyList(),
     faultOptions: List<String> = emptyList(),
     repairItemOptions: List<String> = emptyList()
 ) {
@@ -88,6 +90,7 @@ fun RepairEditorScreen(
     }
     var customerName by rememberSaveable(initialRecord?.id) { mutableStateOf(initialRecord?.customerName.orEmpty()) }
     var repairDevice by rememberSaveable(initialRecord?.id) { mutableStateOf(initialRecord?.repairDevice.orEmpty()) }
+    var brand by rememberSaveable(initialRecord?.id) { mutableStateOf(initialRecord?.brand.orEmpty()) }
     var address by rememberSaveable(initialRecord?.id) { mutableStateOf(initialRecord?.address.orEmpty()) }
     var phone by rememberSaveable(initialRecord?.id) { mutableStateOf(initialRecord?.phone.orEmpty()) }
     var faultSymptom by rememberSaveable(initialRecord?.id) { mutableStateOf(initialRecord?.faultSymptom.orEmpty()) }
@@ -158,6 +161,13 @@ fun RepairEditorScreen(
                 label = "维修设备",
                 placeholder = "例如：液晶电视",
                 options = repairDeviceOptions
+            )
+            OptionTextField(
+                value = brand,
+                onValueChange = { brand = it },
+                label = "品牌",
+                placeholder = "例如：小米、海信、TCL",
+                options = brandOptions
             )
         }
 
@@ -278,6 +288,7 @@ fun RepairEditorScreen(
                             date = parsedDate,
                             customerName = customerName,
                             repairDevice = repairDevice,
+                            brand = brand,
                             address = address,
                             phone = phone,
                             faultSymptom = faultSymptom,

@@ -22,7 +22,8 @@ class RepairRecordEntityMappingTest {
             updatedAtMillis = 2L,
             customerName = "张三",
             warrantyDays = 90,
-            repairDevice = "液晶电视"
+            repairDevice = "液晶电视",
+            brand = "小米"
         )
 
         val entity = record.toEntity()
@@ -30,5 +31,7 @@ class RepairRecordEntityMappingTest {
 
         assertEquals("液晶电视", entity.repairDevice)
         assertEquals("液晶电视", decoded.repairDevice)
+        assertEquals("小米", entity.brand)
+        assertEquals("小米", decoded.brand)
     }
 }

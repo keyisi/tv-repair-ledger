@@ -43,6 +43,7 @@ fun SettingsScreen(
     recordCount: Int,
     addressOptions: List<String>,
     repairDeviceOptions: List<String>,
+    brandOptions: List<String>,
     faultOptions: List<String>,
     repairItemOptions: List<String>,
     onImportXlsx: () -> Unit,
@@ -51,6 +52,8 @@ fun SettingsScreen(
     onDeleteAddressOption: (String) -> Unit,
     onAddRepairDeviceOption: (String) -> Unit,
     onDeleteRepairDeviceOption: (String) -> Unit,
+    onAddBrandOption: (String) -> Unit,
+    onDeleteBrandOption: (String) -> Unit,
     onAddFaultOption: (String) -> Unit,
     onDeleteFaultOption: (String) -> Unit,
     onAddRepairItemOption: (String) -> Unit,
@@ -118,6 +121,15 @@ fun SettingsScreen(
             options = repairDeviceOptions,
             onAddOption = onAddRepairDeviceOption,
             onDeleteOption = onDeleteRepairDeviceOption
+        )
+
+        OptionManagementCard(
+            title = "常用品牌",
+            description = "维护品牌输入框右侧下拉列表，新增记录时可一键选择电视品牌。",
+            inputPlaceholder = "例如：小米",
+            options = brandOptions,
+            onAddOption = onAddBrandOption,
+            onDeleteOption = onDeleteBrandOption
         )
 
         OptionManagementCard(

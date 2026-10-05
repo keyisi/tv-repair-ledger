@@ -35,7 +35,7 @@ class XlsxWorkbookCodecTest {
     }
 
     @Test
-    fun repairRecordsToWorkbookRows_exportsRequestedLedgerColumnOrder() {
+    fun repairRecordsToWorkbookRows_exportsEveryBusinessColumn() {
         val rows = repairRecordsToWorkbookRows(
             listOf(
                 RepairRecord(
@@ -52,17 +52,25 @@ class XlsxWorkbookCodecTest {
                     createdAtMillis = 1L,
                     updatedAtMillis = 1L,
                     customerName = "张三",
-                    warrantyDays = 120
+                    warrantyDays = 120,
+                    repairDevice = "液晶电视",
+                    brand = "小米"
                 )
             )
         )
 
         assertEquals(
-            listOf("日期", "地址", "配件", "故障现象", "收费", "零件费", "电话", "备注", "", "合计", "零件费", "利润"),
+            listOf(
+                "日期", "客户姓名", "品牌", "联系电话", "客户地址", "维修设备", "故障现象",
+                "维修项目", "收费", "零件费", "利润", "保修天数", "备注"
+            ),
             rows.first()
         )
         assertEquals(
-            listOf("2024-03-28", "Address", "lamp", "black screen", "500.00", "50.00", "180", "note", "", "500.00", "50.00", "450.00"),
+            listOf(
+                "2024-03-28", "张三", "小米", "180", "Address", "液晶电视", "black screen",
+                "lamp", "500.00", "50.00", "450.00", "120", "note"
+            ),
             rows[1]
         )
     }
