@@ -1,0 +1,26 @@
+/* 主题 01 · 清爽蓝 Clarity Blue
+   定位：延续现有 App 的视觉语言，做圆角与留白的现代化升级。
+   适合：长时间看账、户外强光下查看（对比度高、卡片分明）。 */
+:root {
+  --bg: #f3f6f8;
+  --surface: #ffffff;
+  --surface-soft: #eaf0f3;
+  --ink-900: #101828;
+  --ink-700: #344054;
+  --ink-500: #667085;
+  --line: #e4e7ec;
+  --primary: #145c74;
+  --primary-ink: #0d3f50;
+  --primary-soft: #d9eef4;
+  --profit: #0f7a5a;
+  --profit-soft: #ddf4ea;
+  --cost: #b36b00;
+  --danger: #b42318;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, .10);
+  --card-pad: 14px;
+  --phone-frame: #10131a;
+  --fs-title: 17px;
+  --fs-body: 13px;
+}

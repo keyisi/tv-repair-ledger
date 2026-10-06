@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>清爽蓝 Clarity Blue · 维修记账高保真原型</title>
+<style>
+/* 高保真原型基础样式：手机外框 + 通用组件骨架
+   具体视觉由各主题 CSS 通过变量覆盖，这里只定义结构与默认排版。 */
+
+:root {
+  --bg: #f3f6f8;
+  --surface: #ffffff;
+  --surface-soft: #eaf0f3;
+  --ink-900: #101828;
+  --ink-700: #344054;
+  --ink-500: #667085;
+  --line: #e4e7ec;
+  --primary: #145c74;
+  --primary-ink: #0d3f50;
+  --primary-soft: #d9eef4;
+  --profit: #0f7a5a;
+  --profit-soft: #ddf4ea;
+  --cost: #b36b00;
+  --danger: #b42318;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, .10);
+  --card-pad: 14px;
+  --phone-frame: #10131a;
+  --fs-title: 17px;
+  --fs-body: 13px;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--ink-900);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.board { width: min(1780px, 100%); margin: 0 auto; padding: 34px 26px 54px; }
+
+.headline { display: flex; justify-content: space-between; gap: 26px; align-items: flex-end; margin-bottom: 26px; }
+.headline h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: -.4px; }
+.headline p { margin: 0; max-width: 780px; color: var(--ink-500); line-height: 1.75; font-size: 14px; }
+
+.tokens { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.token {
+  padding: 7px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 650;
+  color: var(--primary-ink); background: var(--primary-soft);
+}
+.token.solid { color: #fff; background: var(--primary); }
+
+.screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 26px 24px; }
+
+.screen-wrap { display: grid; gap: 10px; justify-items: center; }
+.screen-label {
+  margin: 0; font-size: 13px; font-weight: 750; color: var(--ink-500);
+  letter-spacing: .3px; align-self: start;
+}
+
+/* --- 手机外框 --- */
+.phone {
+  width: 380px; height: 790px; border-radius: 42px; padding: 9px;
+  background: var(--phone-frame);
+  box-shadow: 0 22px 48px rgba(16, 24, 40, .20), 0 2px 0 rgba(255, 255, 255, .08) inset;
+  position: relative; flex: none;
+}
+.app {
+  width: 100%; height: 100%; border-radius: 34px; overflow: hidden;
+  display: flex; flex-direction: column; background: var(--bg); position: relative;
+}
+
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 26px 18px 12px; background: var(--surface);
+  border-bottom: 1px solid var(--line); flex: none;
+}
+.topbar strong { font-size: var(--fs-title); letter-spacing: -.2px; }
+.topbar span { font-size: 12.5px; color: var(--ink-500); font-weight: 600; }
+
+.content { flex: 1; overflow: hidden; padding: 12px 14px 14px; background: var(--bg); }
+
+.nav {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px;
+  padding: 8px 10px 12px; background: var(--surface);
+  border-top: 1px solid var(--line); flex: none;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  color: var(--ink-500); font-size: 11.5px; padding: 5px 0; border-radius: var(--radius-sm);
+}
+.nav-item .glyph { font-size: 17px; line-height: 1; }
+.nav-item.active { color: var(--primary); background: var(--primary-soft); font-weight: 750; }
+
+.fab {
+  position: absolute; right: 18px; bottom: 82px; width: 52px; height: 52px;
+  border-radius: 18px; display: grid; place-items: center; color: #fff;
+  background: var(--primary); font-size: 26px; font-weight: 500;
+  box-shadow: 0 12px 24px rgba(16, 24, 40, .26);
+}
+
+/* --- 通用卡片 --- */
+.card {
+  background: var(--surface); border-radius: var(--radius); padding: var(--card-pad);
+  margin-bottom: 10px; box-shadow: var(--shadow);
+  border: 1px solid color-mix(in srgb, var(--ink-900) 5%, transparent);
+}
+.card.hero { display: grid; gap: 9px; }
+.eyebrow { color: var(--ink-500); font-size: 12px; font-weight: 750; letter-spacing: .4px; }
+.card h2, .section-title, .card h3 { margin: 0; font-size: var(--fs-title); line-height: 1.35; }
+.muted { margin: 0; color: var(--ink-500); font-size: var(--fs-body); line-height: 1.6; }
+.card p.body { margin: 0; font-size: var(--fs-body); line-height: 1.6; color: var(--ink-700); }
+
+.button {
+  height: 42px; display: flex; align-items: center; justify-content: center; gap: 7px;
+  border-radius: var(--radius-sm); border: 0; background: var(--primary); color: #fff;
+  font-weight: 750; font-size: 14px; font-family: var(--font);
+}
+.button.secondary { background: var(--surface); color: var(--primary); border: 1px solid var(--line); }
+
+/* --- 指标格 --- */
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 10px; }
+.metric { min-height: 96px; display: grid; align-content: space-between; margin-bottom: 0; }
+.metric-head { display: flex; justify-content: space-between; align-items: center; color: var(--ink-500); font-size: 12.5px; font-weight: 700; }
+.icon {
+  width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--primary-soft); color: var(--primary); font-size: 13px; font-weight: 700;
+}
+.metric .value { font-size: 21px; font-weight: 850; margin: 6px 0 3px; letter-spacing: -.4px; }
+.metric .value.profit { color: var(--profit); }
+.metric .value.cost { color: var(--cost); }
+
+.section-row { display: flex; justify-content: space-between; align-items: baseline; margin: 13px 0 8px; }
+.section-row small { color: var(--primary); font-weight: 750; font-size: 12px; }
+
+/* --- 记录卡 --- */
+.repair-title { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; margin-bottom: 6px; }
+.repair-title strong {
+  font-size: 14.5px; max-width: 200px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.repair-title .amount { font-size: 13.5px; font-weight: 800; color: var(--profit); white-space: nowrap; }
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.chip {
+  display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 650; color: var(--ink-700); background: var(--surface-soft);
+}
+.chip.accent { color: var(--primary-ink); background: var(--primary-soft); }
+.chip.warn { color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.chip.ok { color: var(--profit); background: var(--profit-soft); }
+.amount-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: var(--fs-body); color: var(--ink-500); }
+.amount-row b { color: var(--ink-900); font-size: 14px; font-weight: 800; }
+.amount-row b.green { color: var(--profit); }
+
+.search {
+  display: flex; align-items: center; gap: 7px; height: 40px; padding: 0 12px;
+  border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-500);
+  font-size: var(--fs-body); border: 1px solid var(--line); margin-bottom: 10px;
+}
+
+/* --- 分段控件 / 标签 --- */
+.segmented { display: flex; gap: 4px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-soft); }
+.segmented button {
+  flex: 1; height: 30px; border: 0; border-radius: 6px; background: transparent;
+  font-family: var(--font); font-size: 12.5px; font-weight: 700; color: var(--ink-500);
+}
+.segmented button.active { background: var(--surface); color: var(--primary); box-shadow: var(--shadow); }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin: 0 -14px 10px; padding: 0 8px; }
+.tab { padding: 8px 12px; font-size: 13.5px; font-weight: 650; color: var(--ink-500); border-bottom: 2px solid transparent; }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 800; }
+
+/* --- 柱状图 --- */
+.chart { display: grid; gap: 8px; }
+.chart-legend { display: flex; gap: 14px; font-size: 11.5px; color: var(--ink-500); font-weight: 650; }
+.chart-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; }
+.chart-body { display: flex; align-items: flex-end; gap: 6px; height: 132px; padding-top: 4px; border-bottom: 1px solid var(--line); }
+.bar-group { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 3px; height: 100%; }
+.bar-group span { width: 9px; border-radius: 3px 3px 0 0; display: block; }
+.bar-group span.rev { background: var(--primary); }
+.bar-group span.pro { background: var(--profit); }
+.chart-axis { display: flex; gap: 6px; }
+.chart-axis span { flex: 1; text-align: center; font-size: 10px; color: var(--ink-500); }
+
+/* --- 排行条 --- */
+.rank { display: grid; gap: 9px; }
+.rank-row { display: grid; gap: 4px; }
+.rank-top { display: flex; justify-content: space-between; font-size: var(--fs-body); }
+.rank-top b { font-weight: 800; }
+.progress { height: 7px; border-radius: 999px; background: var(--surface-soft); overflow: hidden; }
+.progress i { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
+.progress i.pro { background: var(--profit); }
+
+/* --- 表单 --- */
+.field { margin-bottom: 9px; }
+.field label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-500); margin-bottom: 4px; }
+.input {
+  height: 40px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 11px; border-radius: var(--radius-sm); background: var(--surface);
+  border: 1px solid var(--line); font-size: var(--fs-body); color: var(--ink-900);
+}
+.input .pick { color: var(--primary); font-weight: 750; font-size: 12px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+/* --- 设置列表 --- */
+.setting { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.setting:last-child { border-bottom: 0; }
+.setting .label { font-size: var(--fs-body); font-weight: 650; }
+.setting .sub { font-size: 11.5px; color: var(--ink-500); margin-top: 2px; }
+.switch { width: 38px; height: 22px; border-radius: 999px; background: var(--line); position: relative; flex: none; }
+.switch i { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+.switch.on { background: var(--primary); }
+.switch.on i { left: 19px; }
+
+/* --- 对比看板（index.html 用） --- */
+.compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; }
+.theme-clarity { --bg: #f3f6f8; --surface: #ffffff; --surface-soft: #eaf0f3; --ink-900: #101828; --ink-700: #344054; --ink-500: #667085; --line: #e4e7ec; --primary: #145c74; --primary-ink: #0d3f50; --primary-soft: #d9eef4; --profit: #0f7a5a; --profit-soft: #ddf4ea; --cost: #b36b00; --danger: #b42318; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 3px rgba(16,24,40,.10); --card-pad: 14px; --phone-frame: #10131a; --fs-title: 17px; --fs-body: 13px; }
+.theme-night    { --bg: #0e1621; --surface: #18222f; --surface-soft: #22303f; --ink-900: #eef3f8; --ink-700: #c3d0dd; --ink-500: #8fa1b3; --line: #2b3a4b; --primary: #57c7e8; --primary-ink: #b9e9f7; --primary-soft: #1d3346; --profit: #3ed598; --profit-soft: #16332a; --cost: #f3b23c; --danger: #ff6b5e; --radius: 14px; --radius-sm: 10px; --shadow: 0 1px 0 rgba(255,255,255,.04); --card-pad: 14px; --phone-frame: #05080d; --fs-title: 17px; --fs-body: 13px; }
+.theme-warm     { --bg: #fbf5ec; --surface: #fffdf8; --surface-soft: #f4ece0; --ink-900: #2a211a; --ink-700: #5a4a3b; --ink-500: #8a7663; --line: #ece0cf; --primary: #9a5b28; --primary-ink: #6d3d17; --primary-soft: #f6e6d3; --profit: #4f7a3a; --profit-soft: #e6f0dc; --cost: #c2701c; --danger: #c0392b; --radius: 16px; --radius-sm: 12px; --shadow: 0 2px 6px rgba(90, 60, 30, .08); --card-pad: 15px; --phone-frame: #2a211a; --fs-title: 18px; --fs-body: 13.5px; }
+.theme-exec     { --bg: #f4f6f9; --surface: #ffffff; --surface-soft: #eef1f6; --ink-900: #0f172a; --ink-700: #334155; --ink-500: #64748b; --line: #dfe4ec; --primary: #2563eb; --primary-ink: #1e40af; --primary-soft: #e2ebfd; --profit: #047857; --profit-soft: #dcf3e9; --cost: #b45309; --danger: #dc2626; --radius: 6px; --radius-sm: 4px; --shadow: none; --card-pad: 11px; --phone-frame: #0f172a; --fs-title: 15px; --fs-body: 12.5px; }
+
+.card { border: 1px solid var(--line); }
+
+table.tokentable { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+table.tokentable th, table.tokentable td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+table.tokentable th { color: var(--ink-500); font-weight: 700; font-size: 12px; }
+table.tokentable td:first-child { font-weight: 700; }
+.swatch { display: inline-block; width: 15px; height: 15px; border-radius: 4px; vertical-align: -3px; margin-right: 6px; border: 1px solid var(--line); }
+
+.picklist { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.picklist a {
+  padding: 9px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; text-decoration: none;
+  color: var(--primary-ink); background: var(--primary-soft); border: 1px solid var(--line);
+}
+.picklist a:hover { background: var(--primary); color: #fff; }
+
+
+/* ================= 主题变量 ================= */
+/* 主题 01 · 清爽蓝 Clarity Blue
+   定位：延续现有 App 的视觉语言，做圆角与留白的现代化升级。
+   适合：长时间看账、户外强光下查看（对比度高、卡片分明）。 */
+:root {
+  --bg: #f3f6f8;
+  --surface: #ffffff;
+  --surface-soft: #eaf0f3;
+  --ink-900: #101828;
+  --ink-700: #344054;
+  --ink-500: #667085;
+  --line: #e4e7ec;
+  --primary: #145c74;
+  --primary-ink: #0d3f50;
+  --primary-soft: #d9eef4;
+  --profit: #0f7a5a;
+  --profit-soft: #ddf4ea;
+  --cost: #b36b00;
+  --danger: #b42318;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, .10);
+  --card-pad: 14px;
+  --phone-frame: #10131a;
+  --fs-title: 17px;
+  --fs-body: 13px;
+}
+
+</style>
+</head>
+<body>
+<div class="board">
+  <header class="headline">
+    <div>
+      <h1>清爽蓝 Clarity Blue</h1>
+      <p>沿用当前 App 的靛蓝主色与白卡体系，加大圆角、拉开间距、统一字号层级。改动最小，老用户零学习成本。</p>
+    </div>
+    <div class="tokens">
+      <span class="token solid">#145C74 主色</span>
+      <span class="token">圆角 12</span>
+      <span class="token">白卡 + 浅灰底</span>
+      <span class="token">高对比易读</span>
+    </div>
+  </header>
+  <section class="screens">
+<!-- 共用屏幕内容：5 屏，覆盖核心流程。视觉由外层主题变量决定。 -->
+
+<!-- SCREEN:home START -->
+<article class="screen-wrap">
+  <p class="screen-label">01 首页经营概览</p>
+  <div class="phone">
+    <div class="app">
+      <div class="topbar"><strong>维修记账</strong><span>今天</span></div>
+      <div class="content">
+        <div class="card hero">
+          <div class="eyebrow">今日工作台</div>
+          <h2>把上门维修、收费和利润记清楚</h2>
+          <p class="muted">本月已完成 5 单，最近 104 条维修记录可查询。</p>
+          <div class="button">＋ 新增维修记录</div>
+        </div>
+        <div class="section-row"><strong class="section-title">本月经营概览</strong></div>
+        <div class="metrics">
+          <div class="card metric">
+            <div class="metric-head"><span>收入</span><span class="icon">¥</span></div>
+            <div><div class="value">¥1,510.00</div><p class="muted">全部收费</p></div>
+          </div>
+          <div class="card metric">
+            <div class="metric-head"><span>利润</span><span class="icon">↗</span></div>
+            <div><div class="value profit">¥1,205.00</div><p class="muted">扣除配件</p></div>
+          </div>
+          <div class="card metric">
+            <div class="metric-head"><span>成本</span><span class="icon">↘</span></div>
+            <div><div class="value cost">¥305.00</div><p class="muted">配件支出</p></div>
+          </div>
+          <div class="card metric">
+            <div class="metric-head"><span>单量</span><span class="icon">修</span></div>
+            <div><div class="value">5</div><p class="muted">本月维修</p></div>
+          </div>
+        </div>
+        <div class="section-row"><strong class="section-title">最近维修</strong><small>按时间排序</small></div>
+        <div class="card">
+          <div class="repair-title"><strong>杨师傅 · 葛村新苑</strong><span class="amount">利润 ¥100.00</span></div>
+          <p class="muted">13675204643 · 2026-10-05</p>
+          <div class="chip-row">
+            <span class="chip accent">电视机</span>
+            <span class="chip accent">海尔</span>
+            <span class="chip">更换红外接收头</span>
+          </div>
+          <div class="amount-row"><span>收费</span><b>¥120.00</b></div>
+          <div class="amount-row"><span>净利润</span><b class="green">¥100.00</b></div>
+        </div>
+        <div class="card">
+          <div class="repair-title"><strong>曹老师 · 金桂坊</strong><span class="amount">利润 ¥370.00</span></div>
+          <p class="muted">18977632862 · 2026-10-04</p>
+          <div class="chip-row">
+            <span class="chip accent">液晶电视</span>
+            <span class="chip accent">Vidda</span>
+            <span class="chip">音频板维修</span>
+          </div>
+          <div class="amount-row"><span>收费</span><b>¥370.00</b></div>
+          <div class="amount-row"><span>净利润</span><b class="green">¥370.00</b></div>
+        </div>
+      </div>
+      <div class="fab">＋</div>
+      <nav class="nav">
+        <div class="nav-item active"><span class="glyph">⌂</span><span>首页</span></div>
+        <div class="nav-item"><span class="glyph">☷</span><span>台账</span></div>
+        <div class="nav-item"><span class="glyph">▥</span><span>统计</span></div>
+        <div class="nav-item"><span class="glyph">⚙</span><span>更多</span></div>
+      </nav>
+    </div>
+  </div>
+</article>
+<!-- SCREEN:home END -->
+
+<!-- SCREEN:list START -->
+<article class="screen-wrap">
+  <p class="screen-label">02 维修台账</p>
+  <div class="phone">
+    <div class="app">
+      <div class="topbar"><strong>维修台账</strong><span>104 条</span></div>
+      <div class="content">
+        <div class="search">⌕ 搜索地址、电话、设备、品牌、故障、备注</div>
+        <div class="section-row"><strong class="section-title">全部维修记录</strong><small>104 条</small></div>
+        <div class="card">
+          <div class="repair-title"><strong>杨师傅</strong><span class="amount">利润 ¥100.00</span></div>
+          <p class="muted">13675204643 · 2026-10-05</p>
+          <p class="body">遥控不灵</p>
+          <div class="chip-row">
+            <span class="chip accent">电视机</span>
+            <span class="chip accent">海尔</span>
+            <span class="chip">更换红外接收头</span>
+            <span class="chip">葛村新苑</span>
+          </div>
+          <div class="amount-row"><span>收费</span><b>¥120.00</b></div>
+          <div class="amount-row"><span>净利润</span><b class="green">¥100.00</b></div>
+        </div>
+        <div class="card">
+          <div class="repair-title"><strong>曹老师</strong><span class="amount">利润 ¥370.00</span></div>
+          <p class="muted">18977632862 · 2026-10-04</p>
+          <p class="body">无声音</p>
+          <div class="chip-row">
+            <span class="chip accent">液晶电视</span>
+            <span class="chip accent">Vidda</span>
+            <span class="chip">音频板维修</span>
+            <span class="chip">金桂坊</span>
+          </div>
+          <div class="amount-row"><span>收费</span><b>¥370.00</b></div>
+          <div class="amount-row"><span>净利润</span><b class="green">¥370.00</b></div>
+        </div>
+        <div class="card">
+          <div class="repair-title"><strong>吴师傅</strong><span class="amount">利润 ¥295.00</span></div>
+          <p class="muted">15457407685 · 2026-10-02</p>
+          <p class="body">开机卡 LOGO</p>
+          <div class="chip-row">
+            <span class="chip accent">液晶电视</span>
+            <span class="chip accent">东芝</span>
+            <span class="chip">主板维修</span>
+            <span class="chip">翡翠湾</span>
+          </div>
+          <div class="amount-row"><span>收费</span><b>¥430.00</b></div>
+          <div class="amount-row"><span>净利润</span><b class="green">¥295.00</b></div>
+        </div>
+      </div>
+      <div class="fab">＋</div>
+      <nav class="nav">
+        <div class="nav-item"><span class="glyph">⌂</span><span>首页</span></div>
+        <div class="nav-item active"><span class="glyph">☷</span><span>台账</span></div>
+        <div class="nav-item"><span class="glyph">▥</span><span>统计</span></div>
+        <div class="nav-item"><span class="glyph">⚙</span><span>更多</span></div>
+      </nav>
+    </div>
+  </div>
+</article>
+<!-- SCREEN:list END -->
+
+<!-- SCREEN:stats START -->
+<article class="screen-wrap">
+  <p class="screen-label">03 经营统计 · 按月图表</p>
+  <div class="phone">
+    <div class="app">
+      <div class="topbar"><strong>经营统计</strong><span>104 单</span></div>
+      <div class="content">
+        <div class="tabs">
+          <div class="tab">按日</div>
+          <div class="tab active">按月</div>
+          <div class="tab">维修项目</div>
+          <div class="tab">故障类型</div>
+        </div>
+        <div class="card">
+          <div class="eyebrow">全部经营数据</div>
+          <div class="amount-row"><span>总收入</span><b>¥39,130.00</b></div>
+          <div class="amount-row"><span>总利润</span><b class="green">¥25,850.00</b></div>
+          <div class="amount-row"><span>总成本</span><b>¥13,280.00</b></div>
+        </div>
+        <div class="section-row"><strong class="section-title">最近 6 个月</strong></div>
+        <div class="card">
+          <div class="segmented">
+            <button class="active">6月</button><button>12月</button><button>全部</button>
+          </div>
+          <div class="chart" style="margin-top:10px">
+            <div class="chart-legend">
+              <span><i style="background:var(--primary)"></i>收入</span>
+              <span><i style="background:var(--profit)"></i>利润</span>
+            </div>
+            <div class="chart-body">
+              <div class="bar-group"><span class="rev" style="height:64%"></span><span class="pro" style="height:33%"></span></div>
+              <div class="bar-group"><span class="rev" style="height:38%"></span><span class="pro" style="height:24%"></span></div>
+              <div class="bar-group"><span class="rev" style="height:55%"></span><span class="pro" style="height:45%"></span></div>
+              <div class="bar-group"><span class="rev" style="height:100%"></span><span class="pro" style="height:59%"></span></div>
+              <div class="bar-group"><span class="rev" style="height:69%"></span><span class="pro" style="height:57%"></span></div>
+              <div class="bar-group"><span class="rev" style="height:32%"></span><span class="pro" style="height:22%"></span></div>
+              <div class="bar-group"><span class="rev" style="height:23%"></span><span class="pro" style="height:18%"></span></div>
+            </div>
+            <div class="chart-axis">
+              <span>04</span><span>05</span><span>06</span><span>07</span><span>08</span><span>09</span><span>10</span>
+            </div>
+          </div>
+        </div>
+        <div class="section-row"><strong class="section-title">月度表现</strong><small>利润降序</small></div>
+        <div class="card">
+          <div class="rank">
+            <div class="rank-row">
+              <div class="rank-top"><span>2026-07 · 13 单</span><b style="color:var(--profit)">¥3,900.00</b></div>
+              <div class="progress"><i class="pro" style="width:100%"></i></div>
+            </div>
+            <div class="rank-row">
+              <div class="rank-top"><span>2026-08 · 13 单</span><b style="color:var(--profit)">¥3,770.00</b></div>
+              <div class="progress"><i class="pro" style="width:97%"></i></div>
+            </div>
+            <div class="rank-row">
+              <div class="rank-top"><span>2026-06 · 10 单</span><b style="color:var(--profit)">¥2,925.00</b></div>
+              <div class="progress"><i class="pro" style="width:75%"></i></div>
+            </div>
+            <div class="rank-row">
+              <div class="rank-top"><span>2026-04 · 7 单</span><b style="color:var(--profit)">¥2,160.00</b></div>
+              <div class="progress"><i class="pro" style="width:55%"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item"><span class="glyph">⌂</span><span>首页</span></div>
+        <div class="nav-item"><span class="glyph">☷</span><span>台账</span></div>
+        <div class="nav-item active"><span class="glyph">▥</span><span>统计</span></div>
+        <div class="nav-item"><span class="glyph">⚙</span><span>更多</span></div>
+      </nav>
+    </div>
+  </div>
+</article>
+<!-- SCREEN:stats END -->
+
+<!-- SCREEN:editor START -->
+<article class="screen-wrap">
+  <p class="screen-label">04 新增维修记录</p>
+  <div class="phone">
+    <div class="app">
+      <div class="topbar"><strong>新增维修记录</strong><span>保存</span></div>
+      <div class="content">
+        <div class="field">
+          <label>日期</label>
+          <div class="input"><span>2026-10-05</span><span class="pick">修改</span></div>
+        </div>
+        <div class="field">
+          <label>客户姓名</label>
+          <div class="input"><span>杨师傅</span><span class="pick">常用</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>品牌</label>
+            <div class="input"><span>海尔</span><span class="pick">▾</span></div>
+          </div>
+          <div class="field">
+            <label>维修设备</label>
+            <div class="input"><span>电视机</span><span class="pick">▾</span></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>客户地址</label>
+          <div class="input"><span>葛村新苑</span><span class="pick">小区库</span></div>
+        </div>
+        <div class="field">
+          <label>联系电话</label>
+          <div class="input"><span>13675204643</span></div>
+        </div>
+        <div class="field">
+          <label>故障现象</label>
+          <div class="input"><span>遥控不灵</span><span class="pick">▾</span></div>
+        </div>
+        <div class="field">
+          <label>维修项目</label>
+          <div class="input"><span>更换红外接收头</span><span class="pick">▾</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>收费金额</label>
+            <div class="input"><span>¥120.00</span></div>
+          </div>
+          <div class="field">
+            <label>零件成本</label>
+            <div class="input"><span>¥20.00</span></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>保修期</label>
+          <div class="chip-row" style="margin:0">
+            <span class="chip ok" style="padding:6px 12px">30 天</span>
+            <span class="chip" style="padding:6px 12px">90 天</span>
+            <span class="chip" style="padding:6px 12px">180 天</span>
+            <span class="chip" style="padding:6px 12px">365 天</span>
+          </div>
+        </div>
+        <div class="button" style="margin-top:4px">保存维修记录</div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item"><span class="glyph">⌂</span><span>首页</span></div>
+        <div class="nav-item"><span class="glyph">☷</span><span>台账</span></div>
+        <div class="nav-item"><span class="glyph">▥</span><span>统计</span></div>
+        <div class="nav-item active"><span class="glyph">⚙</span><span>更多</span></div>
+      </nav>
+    </div>
+  </div>
+</article>
+<!-- SCREEN:editor END -->
+
+<!-- SCREEN:more START -->
+<article class="screen-wrap">
+  <p class="screen-label">05 更多 · 备份与常用项</p>
+  <div class="phone">
+    <div class="app">
+      <div class="topbar"><strong>更多</strong><span>v1.15</span></div>
+      <div class="content">
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:4px">数据备份</div>
+          <div class="setting">
+            <div><div class="label">导出备份文件</div><div class="sub">整机数据一键打包，换机可恢复</div></div>
+            <span class="chip accent">导出</span>
+          </div>
+          <div class="setting">
+            <div><div class="label">从备份恢复</div><div class="sub">上次备份：从未备份</div></div>
+            <span class="chip">恢复</span>
+          </div>
+          <div class="setting">
+            <div><div class="label">导出 Excel 表格</div><div class="sub">13 列全字段，含客户与品牌</div></div>
+            <span class="chip accent">xlsx</span>
+          </div>
+          <div class="setting">
+            <div><div class="label">导入 Excel 表格</div><div class="sub">按表头名识别，兼容旧格式</div></div>
+            <span class="chip">导入</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:4px">常用选项</div>
+          <div class="setting">
+            <div><div class="label">常用品牌</div><div class="sub">录入时可下拉选择</div></div>
+            <span class="chip">20 项 ▾</span>
+          </div>
+          <div class="setting">
+            <div><div class="label">常用地址</div><div class="sub">内置 100 个附近小区</div></div>
+            <span class="chip">100 项 ▾</span>
+          </div>
+          <div class="setting">
+            <div><div class="label">常用故障现象</div></div>
+            <span class="chip">16 项 ▾</span>
+          </div>
+          <div class="setting">
+            <div><div class="label">常用维修项目</div></div>
+            <span class="chip">22 项 ▾</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="setting" style="border:0">
+            <div><div class="label">保修到期提醒</div><div class="sub">过期前 7 天提醒回访</div></div>
+            <span class="switch on"><i></i></span>
+          </div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item"><span class="glyph">⌂</span><span>首页</span></div>
+        <div class="nav-item"><span class="glyph">☷</span><span>台账</span></div>
+        <div class="nav-item"><span class="glyph">▥</span><span>统计</span></div>
+        <div class="nav-item active"><span class="glyph">⚙</span><span>更多</span></div>
+      </nav>
+    </div>
+  </div>
+</article>
+<!-- SCREEN:more END -->
+  </section>
+</div>
+</body>
+</html>

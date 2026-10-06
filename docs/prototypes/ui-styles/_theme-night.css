@@ -1,0 +1,32 @@
+/* 主题 02 · 夜间深色 Night Ledger
+   定位：师傅收工后晚上记账，深色底 + 高饱和亮色，不刺眼、数字更跳。
+   适合：夜间 / 车内 / 低光环境使用，OLED 屏省电。 */
+:root {
+  --bg: #0e1621;
+  --surface: #18222f;
+  --surface-soft: #22303f;
+  --ink-900: #eef3f8;
+  --ink-700: #c3d0dd;
+  --ink-500: #8fa1b3;
+  --line: #2b3a4b;
+  --primary: #57c7e8;
+  --primary-ink: #b9e9f7;
+  --primary-soft: #1d3346;
+  --profit: #3ed598;
+  --profit-soft: #16332a;
+  --cost: #f3b23c;
+  --danger: #ff6b5e;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 0 rgba(255, 255, 255, .04);
+  --card-pad: 14px;
+  --phone-frame: #05080d;
+  --fs-title: 17px;
+  --fs-body: 13px;
+}
+
+/* 深色下卡片靠底色分层，不用阴影 */
+.card { border: 1px solid var(--line); }
+.nav { border-top: 1px solid var(--line); }
+.segmented button.active { box-shadow: none; background: #243141; }
+.progress { background: #22303f; }
