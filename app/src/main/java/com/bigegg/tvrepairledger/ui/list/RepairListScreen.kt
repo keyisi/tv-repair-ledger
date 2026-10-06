@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bigegg.tvrepairledger.domain.RepairRecord
-import com.bigegg.tvrepairledger.domain.formatCents
+import com.bigegg.tvrepairledger.domain.formatMoney
 import com.bigegg.tvrepairledger.domain.isWarrantyExpired
 import com.bigegg.tvrepairledger.domain.profitCents
 import com.bigegg.tvrepairledger.domain.remainingWarrantyDays
@@ -78,7 +78,7 @@ fun RepairListScreen(
                     value = query,
                     onValueChange = { query = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("搜索地址、电话、设备、故障、配件、备注") },
+                    label = { Text("搜索客户、地址、电话、故障") },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     singleLine = true
                 )
@@ -150,7 +150,7 @@ private fun RepairListItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            InfoChip("利润 ¥${formatCents(record.profitCents)}")
+            InfoChip("利润 ¥${formatMoney(record.profitCents)}")
         }
         Text(
             text = record.faultSymptom.ifBlank { "未填写故障现象" },
@@ -180,7 +180,7 @@ private fun RepairListItem(
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = if (expired) FontWeight.SemiBold else FontWeight.Normal
         )
-        AmountRow("收费", "¥${formatCents(record.chargedAmountCents)}")
-        AmountRow("净利润", "¥${formatCents(record.profitCents)}", tint = ProfitGreen)
+        AmountRow("收费", "¥${formatMoney(record.chargedAmountCents)}")
+        AmountRow("净利润", "¥${formatMoney(record.profitCents)}", tint = ProfitGreen)
     }
 }

@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bigegg.tvrepairledger.domain.RepairRecord
-import com.bigegg.tvrepairledger.domain.formatCents
+import com.bigegg.tvrepairledger.domain.formatMoney
 import com.bigegg.tvrepairledger.domain.isWarrantyExpired
 import com.bigegg.tvrepairledger.domain.profitCents
 import com.bigegg.tvrepairledger.domain.remainingWarrantyDays
@@ -103,7 +103,7 @@ fun HomeScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 MetricCard(
                     title = "收入",
-                    value = "¥${formatCents(currentMonthSummary?.revenueCents ?: 0L)}",
+                    value = "¥${formatMoney(currentMonthSummary?.revenueCents ?: 0L)}",
                     caption = "全部收费",
                     tint = RepairBlue,
                     icon = Icons.Default.Payments,
@@ -111,7 +111,7 @@ fun HomeScreen(
                 )
                 MetricCard(
                     title = "利润",
-                    value = "¥${formatCents(currentMonthSummary?.profitCents ?: 0L)}",
+                    value = "¥${formatMoney(currentMonthSummary?.profitCents ?: 0L)}",
                     caption = "扣除配件",
                     tint = ProfitGreen,
                     icon = Icons.AutoMirrored.Filled.TrendingUp,
@@ -124,7 +124,7 @@ fun HomeScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 MetricCard(
                     title = "成本",
-                    value = "¥${formatCents(currentMonthSummary?.costCents ?: 0L)}",
+                    value = "¥${formatMoney(currentMonthSummary?.costCents ?: 0L)}",
                     caption = "配件支出",
                     tint = CostAmber,
                     icon = Icons.AutoMirrored.Filled.TrendingDown,
@@ -229,8 +229,8 @@ private fun RecentRecordCard(
                 fontWeight = FontWeight.SemiBold
             )
         }
-        AmountRow("收费", "¥${formatCents(record.chargedAmountCents)}")
-        AmountRow("利润", "¥${formatCents(record.profitCents)}", tint = ProfitGreen)
+        AmountRow("收费", "¥${formatMoney(record.chargedAmountCents)}")
+        AmountRow("利润", "¥${formatMoney(record.profitCents)}", tint = ProfitGreen)
     }
 }
 

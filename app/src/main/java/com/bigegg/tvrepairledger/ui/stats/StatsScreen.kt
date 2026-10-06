@@ -37,7 +37,7 @@ import com.bigegg.tvrepairledger.domain.CategoryRepairSummary
 import com.bigegg.tvrepairledger.domain.DailyRepairSummary
 import com.bigegg.tvrepairledger.domain.MonthlyRepairSummary
 import com.bigegg.tvrepairledger.domain.RepairRecord
-import com.bigegg.tvrepairledger.domain.formatCents
+import com.bigegg.tvrepairledger.domain.formatMoney
 import com.bigegg.tvrepairledger.domain.summarizeByDay
 import com.bigegg.tvrepairledger.domain.summarizeByFault
 import com.bigegg.tvrepairledger.domain.summarizeByMonth
@@ -49,7 +49,7 @@ import com.bigegg.tvrepairledger.ui.components.AmountRow
 import com.bigegg.tvrepairledger.ui.components.LedgerCard
 import com.bigegg.tvrepairledger.ui.components.SectionHeader
 import com.bigegg.tvrepairledger.ui.components.StatProgressRow
-import com.bigegg.tvrepairledger.ui.theme.CostAmber
+import com.bigegg.tvrepairledger.ui.theme.CostNeutral
 import com.bigegg.tvrepairledger.ui.theme.DangerRed
 import com.bigegg.tvrepairledger.ui.theme.Ink500
 import com.bigegg.tvrepairledger.ui.theme.ProfitGreen
@@ -146,14 +146,14 @@ fun StatsScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("总收入", style = MaterialTheme.typography.bodySmall, color = Ink500)
-                            Text("¥${formatCents(revenue)}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                            Text("¥${formatMoney(revenue)}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         }
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("总利润", style = MaterialTheme.typography.bodySmall, color = Ink500)
-                            Text("¥${formatCents(profit)}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = ProfitGreen)
+                            Text("¥${formatMoney(profit)}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = ProfitGreen)
                         }
                     }
-                    AmountRow("总成本", "¥${formatCents(cost)}", tint = CostAmber)
+                    AmountRow("总成本", "¥${formatMoney(cost)}", tint = CostNeutral)
                 }
             }
 
@@ -282,8 +282,8 @@ private fun MonthStatCard(summary: MonthlyRepairSummary, maxProfit: Long) {
     LedgerCard(modifier = Modifier.fillMaxWidth()) {
         StatProgressRow(
             title = "${summary.year}-${summary.month.toString().padStart(2, '0')}",
-            subtitle = "${summary.count} 单 · 收入 ¥${formatCents(summary.revenueCents)} · 成本 ¥${formatCents(summary.costCents)}",
-            value = "¥${formatCents(summary.profitCents)}",
+            subtitle = "${summary.count} 单 · 收入 ¥${formatMoney(summary.revenueCents)} · 成本 ¥${formatMoney(summary.costCents)}",
+            value = "¥${formatMoney(summary.profitCents)}",
             progress = summary.profitCents.toFloat() / maxProfit.toFloat(),
             tint = ProfitGreen
         )
@@ -297,8 +297,8 @@ private fun DayStatCard(summary: DailyRepairSummary) {
     LedgerCard(modifier = Modifier.fillMaxWidth()) {
         StatProgressRow(
             title = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-            subtitle = "${summary.count} 单 · 收入 ¥${formatCents(summary.revenueCents)} · 零件费 ¥${formatCents(summary.costCents)}",
-            value = "利润 ¥${formatCents(summary.profitCents)}",
+            subtitle = "${summary.count} 单 · 收入 ¥${formatMoney(summary.revenueCents)} · 零件费 ¥${formatMoney(summary.costCents)}",
+            value = "利润 ¥${formatMoney(summary.profitCents)}",
             progress = 1f,
             tint = profitColor
         )
@@ -310,8 +310,8 @@ private fun CategoryStatCard(summary: CategoryRepairSummary, maxProfit: Long) {
     LedgerCard(modifier = Modifier.fillMaxWidth()) {
         StatProgressRow(
             title = summary.label,
-            subtitle = "${summary.count} 单 · 收入 ¥${formatCents(summary.revenueCents)} · 成本 ¥${formatCents(summary.costCents)}",
-            value = "¥${formatCents(summary.profitCents)}",
+            subtitle = "${summary.count} 单 · 收入 ¥${formatMoney(summary.revenueCents)} · 成本 ¥${formatMoney(summary.costCents)}",
+            value = "¥${formatMoney(summary.profitCents)}",
             progress = summary.profitCents.toFloat() / maxProfit.toFloat(),
             tint = RepairBlue
         )

@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.bigegg.tvrepairledger.domain.RepairRecord
 import com.bigegg.tvrepairledger.domain.formatCents
+import com.bigegg.tvrepairledger.domain.formatMoney
 import com.bigegg.tvrepairledger.domain.parseMoneyToCents
 import com.bigegg.tvrepairledger.options.CommonOptionStore
 import com.bigegg.tvrepairledger.ui.components.AmountRow
@@ -219,7 +220,7 @@ fun RepairEditorScreen(
                 error = partsCostError,
                 keyboardType = KeyboardType.Decimal
             )
-            AmountRow("预计利润", "¥${formatCents(profitPreview)}", tint = ProfitGreen)
+            AmountRow("预计利润", "¥${formatMoney(profitPreview)}", tint = ProfitGreen)
         }
 
         LedgerCard(modifier = Modifier.fillMaxWidth()) {

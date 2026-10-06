@@ -16,6 +16,8 @@ val RepairBlue = Color(0xFF145C74)
 val RepairBlueDark = Color(0xFF0D3F50)
 val ProfitGreen = Color(0xFF0F7A5A)
 val CostAmber = Color(0xFFB36B00)
+/** 成本等中性数字用：原来是橙色，容易被误读成「警告 / 亏损」。 */
+val CostNeutral = Color(0xFF475467)
 val DangerRed = Color(0xFFB42318)
 
 private val ledgerColorScheme = lightColorScheme(

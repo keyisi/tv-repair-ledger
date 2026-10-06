@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -73,7 +74,8 @@ private enum class AppScreen(
     Home("首页", "维修记账", Icons.Default.Home),
     List("台账", "维修台账", Icons.AutoMirrored.Filled.FormatListBulleted),
     Stats("统计", "经营统计", Icons.Default.BarChart),
-    Settings("更多", "更多", Icons.Default.SaveAlt),
+    // 原来是 SaveAlt（下载箭头），用户误以为是「导出台账」，换成齿轮表示设置
+    More("更多", "更多", Icons.Default.Settings),
     Editor("编辑", "维修记录", Icons.Default.Add)
 }
 
@@ -190,7 +192,7 @@ fun TvRepairLedgerApp(
             bottomBar = {
                 if (currentScreen != AppScreen.Editor) {
                     NavigationBar {
-                        listOf(AppScreen.Home, AppScreen.List, AppScreen.Stats, AppScreen.Settings).forEach { screen ->
+                        listOf(AppScreen.Home, AppScreen.List, AppScreen.Stats, AppScreen.More).forEach { screen ->
                             NavigationBarItem(
                                 selected = currentScreen == screen,
                                 onClick = { currentScreen = screen },
@@ -246,7 +248,7 @@ fun TvRepairLedgerApp(
                     modifier = Modifier.padding(innerPadding)
                 )
 
-                AppScreen.Settings -> SettingsScreen(
+                AppScreen.More -> SettingsScreen(
                     recordCount = records.size,
                     addressOptions = rankedAddressOptions,
                     repairDeviceOptions = repairDeviceOptions,
