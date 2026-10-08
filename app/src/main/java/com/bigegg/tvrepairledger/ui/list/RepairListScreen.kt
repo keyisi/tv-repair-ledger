@@ -29,13 +29,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bigegg.tvrepairledger.domain.RepairRecord
 import com.bigegg.tvrepairledger.domain.formatMoney
-import com.bigegg.tvrepairledger.domain.isWarrantyExpired
 import com.bigegg.tvrepairledger.domain.profitCents
 import com.bigegg.tvrepairledger.domain.remainingWarrantyDays
+import com.bigegg.tvrepairledger.domain.warrantyStatus
 import com.bigegg.tvrepairledger.ui.components.AmountRow
+import com.bigegg.tvrepairledger.ui.components.DividerSpace
 import com.bigegg.tvrepairledger.ui.components.InfoChip
 import com.bigegg.tvrepairledger.ui.components.LedgerCard
 import com.bigegg.tvrepairledger.ui.components.SectionHeader
+import com.bigegg.tvrepairledger.ui.components.WarrantyStatusChip
+import com.bigegg.tvrepairledger.ui.theme.CostNeutral
 import com.bigegg.tvrepairledger.ui.theme.Ink500
 import com.bigegg.tvrepairledger.ui.theme.ProfitGreen
 import java.time.LocalDate
@@ -125,7 +128,7 @@ private fun RepairListItem(
     val dateText = LocalDate.ofEpochDay(record.dateEpochDay).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     val today = LocalDate.now().toEpochDay()
     val remainingDays = remainingWarrantyDays(record, today)
-    val expired = isWarrantyExpired(record, today)
+    val status = warrantyStatus(record, today)
     LedgerCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -150,7 +153,7 @@ private fun RepairListItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            InfoChip("利润 ¥${formatMoney(record.profitCents)}")
+            WarrantyStatusChip(status = status, remainingDays = remainingDays)
         }
         Text(
             text = record.faultSymptom.ifBlank { "未填写故障现象" },
@@ -170,17 +173,14 @@ private fun RepairListItem(
             }
             InfoChip(record.repairItem.ifBlank { "未填维修项目" })
             InfoChip(if (record.address.isBlank()) "未填地址" else record.address)
-            if (record.partsCostCents == null) {
-                InfoChip("成本未填")
-            }
         }
-        Text(
-            text = if (expired) "已过保 ${-remainingDays} 天" else "保修剩余 $remainingDays 天",
-            color = if (expired) MaterialTheme.colorScheme.error else Ink500,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (expired) FontWeight.SemiBold else FontWeight.Normal
-        )
+        DividerSpace()
         AmountRow("收费", "¥${formatMoney(record.chargedAmountCents)}")
+        AmountRow(
+            "配件成本",
+            record.partsCostCents?.let { "¥${formatMoney(it)}" } ?: "未填",
+            tint = if (record.partsCostCents == null) Ink500 else CostNeutral
+        )
         AmountRow("净利润", "¥${formatMoney(record.profitCents)}", tint = ProfitGreen)
     }
 }

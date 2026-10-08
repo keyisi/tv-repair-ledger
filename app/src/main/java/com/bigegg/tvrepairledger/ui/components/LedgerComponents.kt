@@ -28,15 +28,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.bigegg.tvrepairledger.domain.WarrantyStatus
 import com.bigegg.tvrepairledger.ui.theme.Ink500
 import com.bigegg.tvrepairledger.ui.theme.LineSoft
+import com.bigegg.tvrepairledger.ui.theme.WarrantyActive
+import com.bigegg.tvrepairledger.ui.theme.WarrantyExpiring
+import com.bigegg.tvrepairledger.ui.theme.WarrantyExpired
 
 private val cardShape = RoundedCornerShape(8.dp)
 
 @Composable
 fun LedgerCard(
     modifier: Modifier = Modifier,
+    contentSpacing: Dp = 10.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
@@ -47,7 +53,7 @@ fun LedgerCard(
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(contentSpacing),
             content = content
         )
     }
@@ -116,6 +122,42 @@ fun InfoChip(text: String, modifier: Modifier = Modifier) {
         label = { Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         border = null
     )
+}
+
+/**
+ * 保修状态标记：在保绿、临期橙、已过保红。
+ * 一张卡片只在右上角出现一次，卡片底部不再重复打印保修文案。
+ */
+@Composable
+fun WarrantyStatusChip(
+    status: WarrantyStatus,
+    remainingDays: Int,
+    modifier: Modifier = Modifier
+) {
+    val tint = when (status) {
+        WarrantyStatus.ACTIVE -> WarrantyActive
+        WarrantyStatus.EXPIRING -> WarrantyExpiring
+        WarrantyStatus.EXPIRED -> WarrantyExpired
+    }
+    val label = when (status) {
+        WarrantyStatus.ACTIVE -> "在保 $remainingDays 天"
+        WarrantyStatus.EXPIRING ->
+            if (remainingDays == 0) "今天到期" else "即将过保 $remainingDays 天"
+        WarrantyStatus.EXPIRED -> "已过保 ${-remainingDays} 天"
+    }
+    Box(
+        modifier = modifier
+            .background(tint.copy(alpha = 0.12f), RoundedCornerShape(999.dp))
+            .padding(horizontal = 10.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = tint,
+            maxLines = 1
+        )
+    }
 }
 
 @Composable

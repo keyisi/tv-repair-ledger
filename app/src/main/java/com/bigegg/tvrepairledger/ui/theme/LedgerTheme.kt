@@ -20,6 +20,11 @@ val CostAmber = Color(0xFFB36B00)
 val CostNeutral = Color(0xFF475467)
 val DangerRed = Color(0xFFB42318)
 
+/** 保修状态三色：在保绿 / 临期橙 / 已过保红。 */
+val WarrantyActive = ProfitGreen
+val WarrantyExpiring = CostAmber
+val WarrantyExpired = DangerRed
+
 private val ledgerColorScheme = lightColorScheme(
     primary = RepairBlue,
     onPrimary = Color.White,

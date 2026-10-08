@@ -23,6 +23,34 @@ class WarrantyTest {
         assertTrue(isWarrantyExpired(record, todayEpochDay = 191L))
     }
 
+    @Test
+    fun warrantyStatus_splitsActiveExpiringAndExpired() {
+        val record = repairRecord(dateEpochDay = 100L, warrantyDays = 90)
+
+        assertEquals(WarrantyStatus.ACTIVE, warrantyStatus(record, todayEpochDay = 100L))
+        assertEquals(WarrantyStatus.ACTIVE, warrantyStatus(record, todayEpochDay = 182L))
+        assertEquals(WarrantyStatus.EXPIRING, warrantyStatus(record, todayEpochDay = 183L))
+        assertEquals(WarrantyStatus.EXPIRING, warrantyStatus(record, todayEpochDay = 190L))
+        assertEquals(WarrantyStatus.EXPIRED, warrantyStatus(record, todayEpochDay = 191L))
+    }
+
+    @Test
+    fun warrantyStatus_thresholdIsSevenRemainingDays() {
+        val record = repairRecord(dateEpochDay = 0L, warrantyDays = 30)
+
+        assertEquals(7, WARRANTY_EXPIRING_THRESHOLD_DAYS)
+        assertEquals(WarrantyStatus.ACTIVE, warrantyStatus(record, todayEpochDay = 22L))
+        assertEquals(WarrantyStatus.EXPIRING, warrantyStatus(record, todayEpochDay = 23L))
+    }
+
+    @Test
+    fun warrantyStatus_zeroDayWarrantyExpiresOnRepairDay() {
+        val record = repairRecord(dateEpochDay = 0L, warrantyDays = 0)
+
+        assertEquals(WarrantyStatus.EXPIRING, warrantyStatus(record, todayEpochDay = 0L))
+        assertEquals(WarrantyStatus.EXPIRED, warrantyStatus(record, todayEpochDay = 1L))
+    }
+
     private fun repairRecord(
         dateEpochDay: Long,
         warrantyDays: Int

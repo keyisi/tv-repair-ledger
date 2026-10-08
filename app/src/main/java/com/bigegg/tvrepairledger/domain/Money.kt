@@ -46,3 +46,25 @@ fun formatMoney(cents: Long): String {
             .setScale(2, RoundingMode.UNNECESSARY)
     )
 }
+
+/**
+ * 图表 Y 轴用的短金额：整元不带小数，满一万折算成「万」，例如 3913000 -> "¥3.9万"。
+ * 轴标签空间小，不能用 [formatMoney] 那种带两位小数的完整写法。
+ */
+fun formatAxisMoney(cents: Long): String {
+    val sign = if (cents < 0) "-" else ""
+    val absYuan = BigDecimal(kotlin.math.abs(cents))
+        .movePointLeft(2)
+    return if (absYuan >= BigDecimal("10000")) {
+        val wan = absYuan.divide(BigDecimal("10000"), 1, RoundingMode.HALF_UP)
+            .stripTrailingZeros()
+            .toPlainString()
+        "$sign¥${wan}万"
+    } else {
+        val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
+            isGroupingUsed = true
+            maximumFractionDigits = 0
+        }
+        "$sign¥${formatter.format(absYuan.setScale(0, RoundingMode.HALF_UP))}"
+    }
+}

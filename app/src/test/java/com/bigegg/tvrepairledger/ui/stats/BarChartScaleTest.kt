@@ -43,4 +43,26 @@ class BarChartScaleTest {
         assertEquals(5000L, scale.maxPositiveCents)
         assertEquals(0L, scale.maxNegativeMagnitudeCents)
     }
+
+    @Test
+    fun barChartAxisTicks_coversPositiveRangeAndZeroLine() {
+        val ticks = barChartAxisTicks(BarChartScale(maxPositiveCents = 50000L, maxNegativeMagnitudeCents = 0L))
+
+        assertEquals(listOf(50000L, 25000L, 0L), ticks)
+    }
+
+    @Test
+    fun barChartAxisTicks_addsNegativeTicksWhenProfitIsBelowZero() {
+        val ticks = barChartAxisTicks(BarChartScale(maxPositiveCents = 50000L, maxNegativeMagnitudeCents = 10000L))
+
+        assertEquals(listOf(50000L, 25000L, 0L, -5000L, -10000L), ticks)
+    }
+
+    @Test
+    fun barChartAxisTicks_neverDuplicatesZeroLineForTinyRanges() {
+        val ticks = barChartAxisTicks(BarChartScale(maxPositiveCents = 1L, maxNegativeMagnitudeCents = 1L))
+
+        assertEquals(listOf(1L, 0L, -1L), ticks.distinct())
+        assertEquals(1, ticks.count { it == 0L })
+    }
 }

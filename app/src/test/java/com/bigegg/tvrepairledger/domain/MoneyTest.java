@@ -35,6 +35,20 @@ public class MoneyTest {
     }
 
     @Test
+    public void formatAxisMoney_shortensLargeAmountsToWan() {
+        assertEquals("¥3.9万", MoneyKt.formatAxisMoney(3913000L));
+        assertEquals("¥4万", MoneyKt.formatAxisMoney(4000000L));
+        assertEquals("¥1万", MoneyKt.formatAxisMoney(1000000L));
+    }
+
+    @Test
+    public void formatAxisMoney_keepsSmallAmountsAsWholeYuan() {
+        assertEquals("¥9,999", MoneyKt.formatAxisMoney(999900L));
+        assertEquals("¥0", MoneyKt.formatAxisMoney(0L));
+        assertEquals("-¥1,200", MoneyKt.formatAxisMoney(-120000L));
+    }
+
+    @Test
     public void formatCents_staysUngroupedForExport() {
         // Export files must stay machine readable, so no thousands separator here.
         assertEquals("39130.00", MoneyKt.formatCents(3913000L));

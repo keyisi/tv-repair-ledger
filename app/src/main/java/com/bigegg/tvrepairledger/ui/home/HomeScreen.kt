@@ -24,23 +24,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bigegg.tvrepairledger.domain.RepairRecord
 import com.bigegg.tvrepairledger.domain.formatMoney
-import com.bigegg.tvrepairledger.domain.isWarrantyExpired
 import com.bigegg.tvrepairledger.domain.profitCents
 import com.bigegg.tvrepairledger.domain.remainingWarrantyDays
 import com.bigegg.tvrepairledger.domain.summarizeByMonth
+import com.bigegg.tvrepairledger.domain.warrantyStatus
 import com.bigegg.tvrepairledger.ui.components.AmountRow
+import com.bigegg.tvrepairledger.ui.components.DividerSpace
 import com.bigegg.tvrepairledger.ui.components.InfoChip
 import com.bigegg.tvrepairledger.ui.components.LedgerCard
 import com.bigegg.tvrepairledger.ui.components.MetricCard
 import com.bigegg.tvrepairledger.ui.components.SectionHeader
-import com.bigegg.tvrepairledger.ui.theme.CostAmber
+import com.bigegg.tvrepairledger.ui.components.WarrantyStatusChip
+import com.bigegg.tvrepairledger.ui.theme.CostNeutral
 import com.bigegg.tvrepairledger.ui.theme.Ink500
 import com.bigegg.tvrepairledger.ui.theme.LedgerTheme
 import com.bigegg.tvrepairledger.ui.theme.ProfitGreen
@@ -126,7 +127,7 @@ fun HomeScreen(
                     title = "成本",
                     value = "¥${formatMoney(currentMonthSummary?.costCents ?: 0L)}",
                     caption = "配件支出",
-                    tint = CostAmber,
+                    tint = CostNeutral,
                     icon = Icons.AutoMirrored.Filled.TrendingDown,
                     modifier = Modifier.weight(1f)
                 )
@@ -134,7 +135,7 @@ fun HomeScreen(
                     title = "单量",
                     value = "${currentMonthSummary?.count ?: 0}",
                     caption = "本月维修",
-                    tint = Color(0xFF475467),
+                    tint = CostNeutral,
                     icon = Icons.Default.Build,
                     modifier = Modifier.weight(1f)
                 )
@@ -181,7 +182,7 @@ private fun RecentRecordCard(
     val dateText = LocalDate.ofEpochDay(record.dateEpochDay).format(DateTimeFormatter.ofPattern("MM-dd"))
     val today = LocalDate.now().toEpochDay()
     val remainingDays = remainingWarrantyDays(record, today)
-    val expired = isWarrantyExpired(record, today)
+    val status = warrantyStatus(record, today)
     LedgerCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -219,16 +220,9 @@ private fun RecentRecordCard(
                 InfoChip(record.brand)
             }
             InfoChip(record.repairItem.ifBlank { "未填项目" })
-            InfoChip(if (expired) "已过保" else "保修剩 $remainingDays 天")
+            WarrantyStatusChip(status = status, remainingDays = remainingDays)
         }
-        if (expired) {
-            Text(
-                text = "已过保 ${-remainingDays} 天",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+        DividerSpace()
         AmountRow("收费", "¥${formatMoney(record.chargedAmountCents)}")
         AmountRow("利润", "¥${formatMoney(record.profitCents)}", tint = ProfitGreen)
     }

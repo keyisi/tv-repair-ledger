@@ -28,6 +28,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -55,6 +58,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeParseException
+
+/** 保修期快捷档位：绝大多数单子落在 30~180 天，剩下的走「自定义」。 */
+val WARRANTY_PRESET_DAYS = listOf(30, 60, 90, 180)
 
 data class RepairEditorDraft(
     val date: LocalDate,
@@ -106,6 +112,9 @@ fun RepairEditorScreen(
     var warrantyDaysInput by rememberSaveable(initialRecord?.id) {
         mutableStateOf((initialRecord?.warrantyDays ?: 90).toString())
     }
+    var warrantyCustomMode by rememberSaveable(initialRecord?.id) {
+        mutableStateOf((initialRecord?.warrantyDays ?: 90) !in WARRANTY_PRESET_DAYS)
+    }
 
     var dateError by remember { mutableStateOf<String?>(null) }
     var chargedAmountError by remember { mutableStateOf<String?>(null) }
@@ -123,7 +132,7 @@ fun RepairEditorScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        LedgerCard(modifier = Modifier.fillMaxWidth()) {
+        LedgerCard(modifier = Modifier.fillMaxWidth(), contentSpacing = 14.dp) {
             SectionHeader("客户信息")
             DateTextField(
                 value = dateInput,
@@ -172,7 +181,7 @@ fun RepairEditorScreen(
             )
         }
 
-        LedgerCard(modifier = Modifier.fillMaxWidth()) {
+        LedgerCard(modifier = Modifier.fillMaxWidth(), contentSpacing = 14.dp) {
             SectionHeader("故障与维修")
             OptionTextField(
                 value = faultSymptom,
@@ -190,7 +199,7 @@ fun RepairEditorScreen(
             )
         }
 
-        LedgerCard(modifier = Modifier.fillMaxWidth()) {
+        LedgerCard(modifier = Modifier.fillMaxWidth(), contentSpacing = 14.dp) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
                     Text("金额与利润", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -223,7 +232,7 @@ fun RepairEditorScreen(
             AmountRow("预计利润", "¥${formatMoney(profitPreview)}", tint = ProfitGreen)
         }
 
-        LedgerCard(modifier = Modifier.fillMaxWidth()) {
+        LedgerCard(modifier = Modifier.fillMaxWidth(), contentSpacing = 14.dp) {
             SectionHeader("备注与保修")
             EditorField(
                 value = notes,
@@ -231,16 +240,20 @@ fun RepairEditorScreen(
                 label = "备注",
                 placeholder = "客户要求、检测结果、注意事项"
             )
-            EditorField(
+            WarrantyDaysPicker(
                 value = warrantyDaysInput,
-                onValueChange = {
+                customMode = warrantyCustomMode,
+                onSelectPreset = {
+                    warrantyDaysInput = it.toString()
+                    warrantyCustomMode = false
+                    warrantyDaysError = null
+                },
+                onSelectCustom = { warrantyCustomMode = true },
+                onCustomValueChange = {
                     warrantyDaysInput = it
                     warrantyDaysError = null
                 },
-                label = "保修天数",
-                placeholder = "默认 90",
-                error = warrantyDaysError,
-                keyboardType = KeyboardType.Number
+                error = warrantyDaysError
             )
         }
 
@@ -519,6 +532,52 @@ private fun OptionTextField(
                     }
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WarrantyDaysPicker(
+    value: String,
+    customMode: Boolean,
+    onSelectPreset: (Int) -> Unit,
+    onSelectCustom: () -> Unit,
+    onCustomValueChange: (String) -> Unit,
+    error: String?
+) {
+    val parsedDays = value.trim().toIntOrNull()
+    val itemCount = WARRANTY_PRESET_DAYS.size + 1
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("保修期", style = MaterialTheme.typography.bodyMedium, color = Ink500)
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            WARRANTY_PRESET_DAYS.forEachIndexed { index, days ->
+                SegmentedButton(
+                    selected = !customMode && parsedDays == days,
+                    onClick = { onSelectPreset(days) },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = itemCount),
+                    label = { Text("${days}天") }
+                )
+            }
+            SegmentedButton(
+                selected = customMode,
+                onClick = onSelectCustom,
+                shape = SegmentedButtonDefaults.itemShape(
+                    index = WARRANTY_PRESET_DAYS.size,
+                    count = itemCount
+                ),
+                label = { Text("自定义") }
+            )
+        }
+        if (customMode) {
+            EditorField(
+                value = value,
+                onValueChange = onCustomValueChange,
+                label = "保修天数",
+                placeholder = "例如：365",
+                error = error,
+                keyboardType = KeyboardType.Number
+            )
         }
     }
 }
